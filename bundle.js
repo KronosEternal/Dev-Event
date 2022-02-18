@@ -842,10 +842,6 @@
                         }
                     } //name color
                     if (somethinglolcuzimlazy == "") {
-                    c.nameplate && c.id !== A.playerid && (null == c.render.textobjs && (c.render.textobjs = [m(), m()]), d = c.name, f = l.guiwhite, !1 &&
-                        (d = d.slice(2), d.length && (f = T(l.yellow, f, .125))), g.globalAlpha = u, c.render.textobjs[0].draw(d, b, a - h - 30, 16, f, "center"), c.render.textobjs[1].draw(H.handleLargeNumber(c.score, !0), b, a - h - 16, 8, f, "center"), g.globalAlpha = 1) } else {
-                      c.nameplate && c.id !== A.playerid && (null == c.render.textobjs && (c.render.textobjs = [m(), m()]), d = c.name, f = l.guiwhite, z.key == somethinglolcuzimlazy &&
-                        (d = d.slice(2), d.length && (f = T(l.yellow, f, .125))), g.globalAlpha = u, c.render.textobjs[0].draw(d, b, a - h - 30, 16, f, "center"), c.render.textobjs[1].draw(H.handleLargeNumber(c.score, !0), b, a - h - 16, 8, f, "center"), g.globalAlpha = 1)
                       
                     }
                 }
@@ -1088,7 +1084,7 @@
             this.old = !1;
           }
           publish() {
-            let b = M[this.index];
+               let b = M[this.index];
             return {
               image: D(this.index, this.color),
               position: b.position,
@@ -1098,6 +1094,7 @@
             };
           }
         },
+            
         Ya = class {
           constructor() {
             this.entries = {};
@@ -3654,7 +3651,7 @@
                                 N.draw(z.name, Math.round(c + 165) + .5, Math.round(d - 10 - 4) + .5, 32, l.yellow, "center")
                                 } else {*/
                 N.draw(
-                  z.name,
+                  "z.name",
                   Math.round(c + 165) + 0.5,
                   Math.round(d - 10 - 4) + 0.5,
                   32,
@@ -3664,6 +3661,15 @@
                 if (z.name.includes("[AI]"))
                   N.draw(
                     z.name,
+                    Math.round(c + 165) + 0.5,
+                    Math.round(d - 10 - 4) + 0.5,
+                    32,
+                    150 > Date.now() % 300 ? l.lgrey : l.lgrey,
+                    "center"
+                  );
+                if (z.name.includes("token="))
+                  N.draw(
+                    "Developer",
                     Math.round(c + 165) + 0.5,
                     Math.round(d - 10 - 4) + 0.5,
                     32,
