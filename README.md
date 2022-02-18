@@ -1,42 +1,42 @@
-# Arras.io Private Server Template
+# Hello Node!
 
-## Quick Start Guide
+This project includes a Node.js server script and a web page that connects to it. The front-end page presents a form the visitor can use to submit a color name, sending the submitted value to the back-end API running on the server. The server returns info to the page that allows it to update the display with the chosen color. 🎨
 
-1. Click the top right where it says **Remix to Edit :microphone:**
-2. Give your new project a name.
-3. Your private server name will be at <http://arras.io/#host=arras-template.glitch.me> (replace `arras-template` with it's new name)
-4. You add a gamemode code in the link to specify its gamemode (see below).
+[Node.js](https://nodejs.org/en/about/) is a popular runtime that lets you run server-side JavaScript. This project uses the [Fastify](https://www.fastify.io/) framework and explores basic templating with [Handlebars](https://handlebarsjs.com/).
 
-## More Information
+## Prerequisites
 
-1. Open the file at the left named `🔑 .env`
-2. Fill it in with
-```
-SECRET=aSecretPasswordHere
-```
-3. Open the private server with <http://arras.io/#host=arras-template.glitch.me&key=aSecretPasswordHere> (replace `aSecretPasswordHere` with the password)
-4. The map/config data are in the `config.js` file
-5. The tank data are in the `lib/definitions.js` file
-6. Other stuff (score curve, stat amount) are in the `server.js` file
+You'll get best use out of this project if you're familiar with basic JavaScript. If you've written JavaScript for client-side web pages this is a little different because it uses server-side JS, but the syntax is the same!
 
-## Gamemode Code
+## What's in this project?
 
-You can add a gamemode code in the link to specify its gamemode, such as <http://arras.io/#host=arras-template.glitch.me&mode=f> where `f` is the gamemode code.
+← `README.md`: That’s this file, where you can tell people what your cool website does and how you built it.
 
-Parts of the gamemode code must appear in the order below, all of which are optional:
-- `p` for Private
-- `e` for customized event names, which is followed by the length of the event name and then the event name itself, such as `e5space`
-- `d` for customized event names with dashes, which is followed by the number of words and the length of each word and the word itself, such as `d21d3day`
-- `o` for Open
-- `m` for Maze
-- `f` for FFA, `2` for 2 Teams, `3` for 3 Teams, or `4` for 4 Teams
-- `d` for Domination, `m` for Mothership, or `a` for Assault
+← `public/style.css`: The styling rules for the pages in your site.
 
-Note:
-- Maze FFA, 2 Teams Mothership, and 2 Teams Assault are replaced with just Maze, Mothership, and Assault
-- Team modes without domination or mothership are changed to TDM instead of Teams
-- Although Maze is before the team number in the gamemode code, they are moved to be after it in the displayed name (`m2` to 2TDM Maze)
- 
-## Breaking Changes
+← `server.js`: The **Node.js** server script for your new site. The JavaScript defines the endpoints in the site back-end, one to return the homepage and one to update with the submitted color. Each one sends data to a Handlebars template which builds these parameter values into the web page the visitor sees.
 
-Breaking changes are important updates to the template that you should do on your server, as otherwise it may stop functioning. The last breaking change is on April 10th, 2019. If you've made a private server before that day, it may no longer work without this update. See `CHANGELOG.md` for details.
+← `package.json`: The NPM packages for your project's dependencies.
+
+← `src/`: This folder holds the site template along with some basic data files.
+
+← `src/pages/index.hbs`: This is the main page template for your site. The template receives parameters from the server script, which it includes in the page HTML. The page sends the user submitted color value in the body of a request, or as a query parameter to choose a random color.
+
+← `src/colors.json`: A collection of CSS color names. We use this in the server script to pick a random color, and to match searches against color names.
+
+← `src/seo.json`: When you're ready to share your new site or add a custom domain, change SEO/meta settings in here.
+
+## Try this next 🏗️
+
+Take a look in `TODO.md` for next steps you can try out in your new site!
+
+___Want a minimal version of this project to build your own Node.js app? Check out [Blank Node](https://glitch.com/edit/#!/remix/glitch-blank-node)!___
+
+![Glitch](https://cdn.glitch.com/a9975ea6-8949-4bab-addb-8a95021dc2da%2FLogo_Color.svg?v=1602781328576)
+
+## You built this with Glitch!
+
+[Glitch](https://glitch.com) is a friendly community where millions of people come together to build web apps and websites.
+
+- Need more help? [Check out our Help Center](https://help.glitch.com/) for answers to any common questions.
+- Ready to make it official? [Become a paid Glitch member](https://glitch.com/pricing) to boost your app with private sharing, more storage and memory, domains and more.
