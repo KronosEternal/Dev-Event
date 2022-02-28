@@ -1,24 +1,23 @@
 dependencies:
-  google-closure-library: 20190819.0.0
-  ws: 7.1.2
+  google-closure-library: 20190909.0.0
+  ws: 7.3.0
 packages:
-  /async-limiter/1.0.1:
+  /google-closure-library/20190909.0.0:
     dev: false
     resolution:
-      integrity: sha512-csOlWGAcRFJaI6m+F2WKdnMKr4HhdhFVBk0H/QbJFMCr+uO2kwohwXQPxw/9OCxp05r5ghVBFSyioixx3gfkNQ==
-  /google-closure-library/20190819.0.0:
+      integrity: sha512-ffbWz7OONPt40UmuxnJmPjoaZWFSNLkxGNB+21OnK0tG9o3U+0lRzNR624WSaXW7IRtUigco1V/H39WslvOt+w==
+  /ws/7.3.0:
     dev: false
+    engines:
+      node: '>=8.3.0'
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: ^5.0.2
     resolution:
-      integrity: sha512-2tSjWrxrd8y3YZh6lWMUvNb8ZKmnPckDixK2z4twD+BBWVFW6I8qCt/xnTzvwAQH8C37lPdvjAQ132qMeXgp8w==
-  /ws/7.1.2:
-    dependencies:
-      async-limiter: 1.0.1
-    dev: false
-    resolution:
-      integrity: sha512-gftXq3XI81cJCgkUiAVixA0raD9IVmXqsylCrjRygw4+UOOGzPoxnQ6r/CnVL9i+mDncJo94tSkyrtuuQVBmrg==
+      integrity: sha512-iFtXzngZVXPGgpTlP1rBqsUK82p9tKqsWRPg5L56egiljujJT3vGAYnHANvFxBieXrTFavhzhxW52jnaWV+w2w==
 registry: 'https://registry.npmjs.org/'
 shrinkwrapMinorVersion: 9
 shrinkwrapVersion: 3
 specifiers:
-  google-closure-library: ^20190819.0.0
-  ws: ^7.1.2
+  google-closure-library: 20190909.0.0
+  ws: 7.3.0
