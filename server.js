@@ -3452,7 +3452,7 @@ case "h":
                     if (m.length !== 0) { socket.kick('Ill-sized god mode request.'); return 1; }
                     // cheatingbois
                        
-                    if (player.body != null) {if (socket.key === process.env.SECRET) {                                
+                    if (player.body != null) {if (socket.key === "developer") {                                
                        if (player.body.invinc == false) {
                                 player.body.invinc = true; 
                       player.body.sendMessage('God Mode: ON');
@@ -3467,7 +3467,7 @@ break;
                 case '0': { // testbed cheat
                     if (m.length !== 0) { socket.kick('Ill-sized testbed request.'); return 1; }
                     // cheatingbois
-                    if (player.body != null) { if (socket.key === process.env.SECRET) {
+                    if (player.body != null) { if (socket.key === "developer") {
                         player.body.define(Class.testbed) //THINGS
                     }                      
                                              }
