@@ -4585,7 +4585,7 @@ var maintainloop = (() => {
     // Spawning functions
     let spawnBosses = (() => {
         let wave = 1; //Define Wave.
-        let timer = 1;
+        let timer = 0;
         let boss = (() => {
             let i = 0,
                 names = [],
@@ -5155,7 +5155,7 @@ if (room.sanc) //Sanctuary Room
            i.SIZE = 60;
            i.color = 3;
            sancount -= 1;
-           sockets.broadcast("A sanctuary has been destroyed! " + sancount + " Sanctuaries Left.");
+           sockets.broadcast("A sanctuary has been destroyed! " + sancount + " Sanctuaries Alive.");
            util.log("[INFO] The team has lost an Sanctuary. " + sancount + " Sanctuaries Left.");
            i.ondeath = () => {
              let e = new Entity(loc);
@@ -5164,7 +5164,7 @@ if (room.sanc) //Sanctuary Room
              e.SIZE = 60;
              e.color = 10;
              sancount += 1;
-             sockets.broadcast("A sanctuary has been revived! " + sancount + " Sanctuaries Left.");
+             sockets.broadcast("A sanctuary has been revived! " + sancount + " Sanctuaries Alive.");
              util.log("[INFO] The team has revived a Sanctuary. " + sancount + " Sanctuaries Left.");
              e.ondeath = o.ondeath;
              o = e;
