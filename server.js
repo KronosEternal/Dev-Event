@@ -4637,124 +4637,40 @@ var maintainloop = (() => {
                 timer = 0;
                 let choice = [];
                 switch (wave) { //The wave contenders
-                    case 1: 
-                        choice = [[Class.palisade], 1, 'a', 'nest'];
-                        sockets.broadcast('Wave 1');
-                        break;
-                    case 2: 
-                        choice = [[Class.nestkeeper], 1, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 2');
-                        break;
-                    case 3: 
-                        choice = [[Class.elite_builder, Class.elite_nail, Class.nestkeeper], 4, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 3');
-                        break;
-                    case 4: 
-                        choice = [[Class.elite_builder, Class.palisade, Class.elite_destroyer], 4, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 4');
-                        break;
-                    case 5: 
-                        choice = [[Class.oversentry, Class.sentryBent, Class.fatsentry], 40, 'castle', 'nest']; 
-                        sockets.broadcast('Reinforcements! (Wave 5)');
-                        break;
-                    case 6: 
-                        choice = [[Class.elite_builder, Class.elite_gunner, Class.polygoner, Class.summoner], 7, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 6');
-                        break;
-                    case 7: 
-                        choice = [[Class.polygoner, Class.defender, Class.elite_gunner, Class.elite_builder, Class.summoner], 8, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 7');
-                        break;
-                    case 8: 
-                        choice = [[Class.defender, Class.elite_builder], 4, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 8');
-                        break;
-                     case 9: 
-                        choice = [[Class.fallanni, Class.defender, Class.swp11, Class.polygoner, Class.elite_gunner, Class.summoner], 6, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 9');
-                        break;
-                     case 10: 
-                        choice = [[Class.defender, Class.fallfighter, Class.fallenbooster], 7, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 10');
-                        break;
-                     case 11: 
-                        choice = [[Class.defender, Class.elitepenta], 7, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 11');
-                        break;
-                      case 12: 
-                        choice = [[Class.elitepenta, Class.elite_builder, Class.summoner, Class.elite_gunner], 9, 'a', 'nest'];
-                        sockets.broadcast('Wave 12');
-                        break;
-                    case 13: 
-                        choice = [[Class.elitepenta, Class.elite_builder, Class.summoner, Class.elite_gunner, Class.elite_sprayer], 10, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 13');
-                        break;
-                    case 14: 
-                        choice = [[Class.elitepenta, Class.elite_builder, Class.summoner, Class.elite_engineer, Class.elite_sprayer], 9, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 14');
-                        break;
-                    case 15: 
-                        choice = [[Class.elite_artillery], 1, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 15 (BOSS)');
-                        break;
-                    case 16: 
-                        choice = [[Class.xe3, Class.elite_builder, Class.summoner, Class.elite_sprayer], 10, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 16');
-                        break;
-                    case 17: 
-                        choice = [[Class.elite_builder, Class.fallord, Class.summoner], 9, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 17');
-                        break;
-                    case 18: 
-                        choice = [[Class.elite_builder, Class.summoner, Class.fallmortar], 8, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 18');
-                        break;
-                    case 19: 
-                        choice = [[Class.fallmortar, Class.elite_builder, Class.summoner], 8, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 19');
-                        break;
-                     case 20: 
-                        choice = [[Class.pig7, Class.elite_builder, Class.summoner], 6, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 20');
-                        break;
-                     case 21: 
-                        choice = [[Class.defender, Class.elite_builder, Class.summoner, Class.elite_sprayer], 9, 'castle', 'nest']; 
-                        sockets.broadcast('Wave 21');
-                        break;
-                     case 22: 
+                     case 1: 
                         choice = [[Class.defender, Class.pig7, Class.elitepenta, Class.elite_nail, Class.nestkeeper, Class.fallmortar, Class.fallord, Class.swp11, Class.fallfighter, Class.fallenbooster, Class.elite_builder, Class.summoner, Class.elite_engineer, Class.elite_sprayer], 25, 'castle', 'nest']; 
                         sockets.broadcast('WAVE 22');
                         break;
-                    case 23: 
+                    case 2: 
                         choice = [[Class.elite_builder], 1, 'castle', 'nest']; 
                         sockets.broadcast('Almost there');
                         break;
-                    case 24: 
+                    case 3: 
                         choice = [[Class.foremost], 1, 'castle', 'nest']; 
                         sockets.broadcast('WAVE 24 (BOSS)');
                         break;
-                    case 25: 
+                    case 4: 
                         choice = [[Class.elite_builder], 5, 'castle', 'nest']; 
                         sockets.broadcast('Reinforcements!');
                         break;
-                   case 26: 
+                   case 5: 
                         choice = [[Class.outrage], 1, 'castle', 'nest']; 
                         sockets.broadcast('FINAL BOSS');
                         break;
-                     case 27: 
+                    case 6: 
                         choice = [[Class.summoner], 4, 'castle', 'nest']; 
                         sockets.broadcast('Reinforcements!');
                         break;
-                     case 28: 
+                     case 7: 
                         choice = [[Class.fatsentry], 10, 'castle', 'nest']; 
                         sockets.broadcast('Reinforcements!');
                         break;
                         break;
-                    case 29: 
+                    case 8: 
                         choice = [[Class.palisade], 10, 'castle', 'nest']; 
                         sockets.broadcast('Reinforcements!');
                         break;
-                    case 30: //The Arena Closer Wave
+                    case 9: //The Arena Closer Wave
                         choice = [[Class.fallord], 19, 'castle', 'nest']; 
                         sockets.broadcast('YOU WON THE GAME!');
                         util.log('[INFO] The team won, closing the game...');
