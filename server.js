@@ -4641,37 +4641,12 @@ var maintainloop = (() => {
                         choice = [[Class.defender, Class.pig7, Class.elitepenta, Class.elite_nail, Class.nestkeeper, Class.fallmortar, Class.fallord, Class.swp11, Class.fallfighter, Class.fallenbooster, Class.elite_builder, Class.summoner, Class.elite_engineer, Class.elite_sprayer], 25, 'castle', 'nest']; 
                         sockets.broadcast('WAVE 22');
                         break;
-                    case 2: 
-                        choice = [[Class.elite_builder], 1, 'castle', 'nest']; 
-                        sockets.broadcast('Almost there');
-                        break;
-                    case 3: 
-                        choice = [[Class.foremost], 1, 'castle', 'nest']; 
-                        sockets.broadcast('WAVE 24 (BOSS)');
-                        break;
-                    case 4: 
-                        choice = [[Class.elite_builder], 5, 'castle', 'nest']; 
-                        sockets.broadcast('Reinforcements!');
-                        break;
-                   case 5: 
+                  case 2:
                         choice = [[Class.outrage], 1, 'castle', 'nest']; 
                         sockets.broadcast('FINAL BOSS');
                         break;
-                    case 6: 
-                        choice = [[Class.summoner], 4, 'castle', 'nest']; 
-                        sockets.broadcast('Reinforcements!');
-                        break;
-                     case 7: 
-                        choice = [[Class.fatsentry], 10, 'castle', 'nest']; 
-                        sockets.broadcast('Reinforcements!');
-                        break;
-                        break;
-                    case 8: 
-                        choice = [[Class.palisade], 10, 'castle', 'nest']; 
-                        sockets.broadcast('Reinforcements!');
-                        break;
-                    case 9: //The Arena Closer Wave
-                        choice = [[Class.fallord], 19, 'castle', 'nest']; 
+                    case 3: //The Arena Closer Wave
+                        choice = [[Class.susalization], 19, 'negro', 'sanc']; 
                         sockets.broadcast('YOU WON THE GAME!');
                         util.log('[INFO] The team won, closing the game...');
                         break;
