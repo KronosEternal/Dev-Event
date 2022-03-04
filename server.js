@@ -4697,12 +4697,16 @@ var maintainloop = (() => {
                 let choice = [];
                 switch (wave) { //The wave contenders
                      case 1: 
-                        choice = [[Class.defender, Class.pig7, Class.elitepenta, Class.elite_nail, Class.nestkeeper, Class.fallmortar, Class.fallord, Class.swp11, Class.fallfighter, Class.fallenbooster, Class.elite_builder, Class.summoner, Class.elite_engineer, Class.elite_sprayer], 25, 'castle', 'nest']; 
+                        choice = [[Class.defender, Class.pig7, Class.elitepenta, Class.elite_nail, Class.nestkeeper, Class.fallmortar, Class.fallord, Class.swp11, Class.fallfighter, Class.fallenbooster, Class.elite_builder, Class.summoner, Class.elite_engineer, Class.elite_sprayer], 16, 'castle', 'nest']; 
                         sockets.broadcast('WAVE 22');
                         break;
                   case 2:
-                        choice = [[Class.outrage], 1, 'castle', 'nest']; 
-                        sockets.broadcast('FINAL BOSS');
+                    choice = [[Class.foremost], 2, 'negro', 'nest']
+                    sockets.broadcast('ripoff legionary');
+                    break;
+                   case 2:
+                        choice = [[Class.outrage], 2, 'negro', 'nest']; 
+                        sockets.broadcast('FINAL BOSSES');
                         break;
                     case 3: //The Arena Closer Wave
                         choice = [[Class.susalization], 19, 'negro', 'sanc']; 
