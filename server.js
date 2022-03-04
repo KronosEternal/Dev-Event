@@ -4704,7 +4704,7 @@ var maintainloop = (() => {
                     choice = [[Class.foremost], 2, 'negro', 'nest']
                     sockets.broadcast('ripoff legionary');
                     break;
-                   case 2:
+                /*   case 2:
                         choice = [[Class.outrage], 2, 'negro', 'nest']; 
                         sockets.broadcast('FINAL BOSSES');
                         break;
@@ -4712,7 +4712,7 @@ var maintainloop = (() => {
                         choice = [[Class.susalization], 19, 'negro', 'sanc']; 
                         sockets.broadcast('YOU WON THE GAME!');
                         util.log('[INFO] The team won, closing the game...');
-                        break;
+                        break;*/
                 }
                 boss.prepareToSpawn(...choice);
                 setTimeout(boss.spawn, 3000);
