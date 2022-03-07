@@ -1,16 +1,16 @@
 {
-  "name": "arras",
+  "name": "Arras.io",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
     "start": "node server"
   },
   "dependencies": {
-    "google-closure-library": "20180506.0.0",
-    "ws": "6.1.x"
+    "google-closure-library": "20190909.0.0",
+    "ws": "7.3.0"
   },
   "engines": {
-    "node": "10.x"
+    "node": "12.x"
   },
   "license": "GPL-3.0"
 }
