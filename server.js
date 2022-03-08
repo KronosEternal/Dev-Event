@@ -3,7 +3,7 @@
 /*global goog, Map, let */
 "use strict";
 
-// General requiresdddw
+// General requires
 require('google-closure-library');
 goog.require('goog.structs.PriorityQueue');
 goog.require('goog.structs.QuadTree');
@@ -16,7 +16,7 @@ const util = require('./lib/util');
 const ran = require('./lib/random');
 const hshg = require('./lib/hshg');
 
-// Let's get a cheaper array rem oval thing
+// Let's get a cheaper array removal thing
 Array.prototype.remove = index => {
     if(index === this.length - 1){
         return this.pop();
@@ -26,7 +26,6 @@ Array.prototype.remove = index => {
         return r;
     }
 };
-
 // Set up room.
 global.fps = "Unknown";
 var roomSpeed = c.gameSpeed;
@@ -36,10 +35,8 @@ const room = {
     width: c.WIDTH,
     height: c.HEIGHT,
     setup: c.ROOM_SETUP,
-    xgrid: c.X_GRID,
+    xgrid: c.X_GRID, 
     ygrid: c.Y_GRID,
-    xgridWidth: c.WIDTH / c.ROOM_SETUP[0].length,
-    ygridHeight: c.HEIGHT / c.ROOM_SETUP.length,
     gameMode: c.MODE,
     skillBoost: c.SKILL_BOOST,
     scale: {
@@ -68,13 +65,6 @@ const room = {
         room[type] = output;
     };
     room.findType('nest');
-    room.findType('suss');
-    room.findType('rwall');
-    room.findType('wall');
-    room.findType('mall');
-    room.findType('ball');
-    room.findType('tall');
-    room.findType('tbll');
     room.findType('norm');
     room.findType('bas1');
     room.findType('bas2');
@@ -86,6 +76,10 @@ const room = {
     room.findType('bap4');
     room.findType('roid');
     room.findType('rock');
+    room.findType('barr');
+    room.findType('wall');
+    room.findType('sanc');
+    
     room.nestFoodAmount = 1.5 * Math.sqrt(room.nest.length) / room.xgrid / room.ygrid;
     room.random = () => {
         return {
@@ -134,7 +128,7 @@ const room = {
         if (room.isInRoom(location)) {
             let a = Math.floor(location.y * room.ygrid / room.height);
             let b = Math.floor(location.x * room.xgrid / room.width);
-            return type === (room.setup[a] || [])[b];
+            return type === room.setup[a][b];
         } else {
             return false;
         }
@@ -173,7 +167,7 @@ class Vector {
         this.len = this.length;
         this.dir = this.direction;
     }
-
+  
     isShorterThan(d) {
         return this.x * this.x + this.y * this.y <= d * d
     }
@@ -233,8 +227,8 @@ function timeOfImpact(p, v, s) {
 }
 class IO {
     constructor(body) {
-        this.body = body
-        this.acceptsFromTop = true
+        this.body = body;
+        this.acceptsFromTop = true;
     }
 
     think() {
@@ -245,14 +239,13 @@ class IO {
             main: null,
             alt: null,
             power: null,
-        }
+        };
     }
 }
-let ioTypes = {}
-ioTypes.doNothing = class extends IO {
+class io_doNothing extends IO {
     constructor(body) {
-        super(body)
-        this.acceptsFromTop = false
+        super(body);
+        this.acceptsFromTop = false;
     }
 
     think() {
@@ -264,292 +257,198 @@ ioTypes.doNothing = class extends IO {
             main: false,
             alt: false,
             fire: false,
-        }
+        };
     }
 }
-ioTypes.moveInCircles = class extends IO {
+class io_moveInCircles extends IO {
     constructor(body) {
-        super(body)
-        this.acceptsFromTop = false
-        this.timer = ran.irandom(10) + 3
+        super(body);
+        this.acceptsFromTop = false;
+        this.timer = ran.irandom(10) + 3;
         this.goal = {
             x: this.body.x + 10*Math.cos(-this.body.facing),
             y: this.body.y + 10*Math.sin(-this.body.facing),
-        }
+        };
     }
 
     think() {
         if (!(this.timer--)) {
-            this.timer = 10
+            this.timer = 10;
             this.goal = {
                 x: this.body.x + 10*Math.cos(-this.body.facing),
                 y: this.body.y + 10*Math.sin(-this.body.facing),
-            }
+            };
         }
-        return { goal: this.goal }
+        return { goal: this.goal };
     }
 }
-ioTypes.listenToPlayer = class extends IO {
+class io_listenToPlayer extends IO {
     constructor(b, p) {
-        super(b)
-        this.player = p
-        this.acceptsFromTop = false
+        super(b);
+        this.player = p;
+        this.acceptsFromTop = false;
     }
 
     // THE PLAYER MUST HAVE A VALID COMMAND AND TARGET OBJECT
-
+    
     think() {
         let targ = {
             x: this.player.target.x,
             y: this.player.target.y,
-        }
-        if (c.RADIAL) {
-            let angle = Math.atan2(this.body.x - room.width / 2, room.height / 2 - this.body.y)
-            let cos = Math.cos(angle)
-            let sin = Math.sin(angle)
-            let { x, y } = targ
-            targ.x = cos * x - sin * y
-            targ.y = sin * x + cos * y
-        }
+        };
         if (this.player.command.autospin) {
-            let kk = Math.atan2(this.body.control.target.y, this.body.control.target.x) + 0.02
+            let kk = Math.atan2(this.body.control.target.y, this.body.control.target.x) + 0.02;
             targ = {
                 x: 100 * Math.cos(kk),
                 y: 100 * Math.sin(kk),
-            }
-        } else if (this.player.command.reverseTank) {
-            targ.x = -targ.x
-            targ.y = -targ.y
+            };
         }
         if (this.body.invuln) {
             if (this.player.command.right || this.player.command.left || this.player.command.up || this.player.command.down || this.player.command.lmb) {
-                this.body.invuln = false
+                this.body.invuln = false;
             }
         }
-        this.body.autoOverride = this.player.command.override
-        let left = this.player.command.lmb
-        let right = this.player.command.rmb
-        if (this.player.command.reverseMouse) {
-            let temp = right
-            right = left
-            left = temp
-        }
-        left = this.player.command.autofire || left
-        let goalX = this.player.command.right - this.player.command.left
-        let goalY = this.player.command.down - this.player.command.up
-        if (c.RADIAL) {
-            let angle = Math.atan2(this.body.x - room.width / 2, room.height / 2 - this.body.y)
-            let cos = Math.cos(angle)
-            let sin = Math.sin(angle)
-            let newX = cos * goalX - sin * goalY
-            let newY = sin * goalX + cos * goalY
-            goalX = newX
-            goalY = newY
-        }
-        return {
+        this.body.autoOverride = this.player.command.override;
+        return {         
             target: targ,
             goal: {
-                x: this.body.x + goalX,
-                y: this.body.y + goalY,
+                x: this.body.x + this.player.command.right - this.player.command.left,
+                y: this.body.y + this.player.command.down - this.player.command.up,
             },
-            fire: left,
-            main: left || this.player.command.autospin,
-            alt: right,
-            reverseTank: this.player.command.reverseTank,
-        }
+            fire: this.player.command.lmb || this.player.command.autofire,
+            main: this.player.command.lmb || this.player.command.autospin || this.player.command.autofire,
+            alt: this.player.command.rmb,
+        };
     }
 }
-ioTypes.reactionControl = class extends IO {
+class io_mapTargetToGoal extends IO {
     constructor(b) {
-        super(b)
-        this.acceptsFromTop = false
-        this.direction = 0
-        this.stabilizeWait = 50
-    }
-
-    // THE PLAYER MUST HAVE A VALID COMMAND AND TARGET OBJECT
-
-    think() {
-        let offset = 0
-        if (this.body.bond != null) {
-            offset = this.body.bound.angle
-        }
-        let player = this.body.master.master.player
-        let moving = player && (player.command.right || player.command.left || player.command.down || player.command.up)
-        let fire = moving
-        let override = this.body.master.autoOverride
-        if (moving) {
-          /*let x = this.body.master.control.goal.x - this.body.x // +player.command.right - +player.command.left
-          let y = this.body.master.control.goal.y - this.body.y // +player.command.down - +player.command.up
-          this.direction = Math.atan2(y, x)*/
-          let x = +player.command.right - +player.command.left
-          let y = +player.command.down - +player.command.up
-          this.direction = [
-            -3, -2, -1,
-             4,  0,  0,
-             3,  2,  1,
-          ][y * 3 + x + 4] / 4 * Math.PI
-          if (c.RADIAL) {
-            this.direction += Math.atan2(this.body.x - room.width / 2, room.height / 2 - this.body.y)
-          }
-        } else if (!override) {
-          if (!this.body.master.velocity.isShorterThan(0.1)) {
-            this.direction = this.body.master.velocity.direction + Math.PI
-            if (!this.body.master.velocity.isShorterThan(1.5) || this.stabilizeWait <= 0) {
-              fire = true
-            }
-          }
-        }
-        if (fire && !(this.stabilizeWait <= 0 && this.stabilizeWait > 3)) {
-          this.stabilizeWait = 50
-        } else if (this.stabilizeWait > 0) {
-          this.stabilizeWait--
-        }
-        return {
-            target: {
-                x: Math.cos(offset + this.direction),
-                y: Math.sin(offset + this.direction),
-            },
-            main: true,
-            fire,
-        }
-    }
-}
-ioTypes.mapTargetToGoal = class extends IO {
-    constructor(body) {
-        super(body)
+        super(b);
     }
 
     think(input) {
         if (input.main || input.alt) {
-            return {
+            return {         
                 goal: {
                     x: input.target.x + this.body.x,
                     y: input.target.y + this.body.y,
                 },
                 power: 1,
-            }
+            };
         }
     }
 }
-ioTypes.boomerang = class extends IO {
-    constructor(body) {
-        super(body)
-        this.range = 0
-        this.master = body.master
-        this.turnover = false
+class io_boomerang extends IO {
+    constructor(b) {
+        super(b);
+        this.r = 0;
+        this.b = b;
+        this.m = b.master;
+        this.turnover = false;
+        let len = 10 * util.getDistance({x: 0, y:0}, b.master.control.target);
         this.myGoal = {
-            x: 3 * body.master.control.target.x + body.master.x,
-            y: 3 * body.master.control.target.y + body.master.y,
-        }
+            x: 3 * b.master.control.target.x + b.master.x,
+            y: 3 * b.master.control.target.y + b.master.y,
+        };
     }
     think(input) {
-        if (this.body.range > this.range) this.range = this.body.range
-        if (this.turnover) {
-            return {
-                goal: {
-                    x: this.master.x,
-                    y: this.master.y,
-                },
-            }
-        } else {
-            if (this.range && this.body.range < this.range * 0.5) this.turnover = true
+        if (this.b.range > this.r) this.r = this.b.range;
+        let t = 1; //1 - Math.sin(2 * Math.PI * this.b.range / this.r) || 1;
+        if (!this.turnover) {
+            if (this.r && this.b.range < this.r * 0.5) { this.turnover = true; }
             return {
                 goal: this.myGoal,
-            }
+                power: t,
+            };
+        } else {
+            return {
+                goal: {
+                    x: this.m.x,
+                    y: this.m.y,
+                },
+                power: t,
+            };
         }
     }
 }
-ioTypes.goToMasterTarget = class extends IO {
+class io_goToMasterTarget extends IO {
     constructor(body) {
-        super(body)
+        super(body);
         this.myGoal = {
             x: body.master.control.target.x + body.master.x,
             y: body.master.control.target.y + body.master.y,
-        }
-        this.countdown = 200
+        };
+        this.countdown = 5;
     }
 
     think() {
-        if (this.countdown <= 0) return
-
-        // projectedDistance = velocity / this.body.damp * roomSpeed
-        let deltaX = (this.myGoal.x - this.body.x) * this.body.damp - this.body.velocity.x
-        let deltaY = (this.myGoal.y - this.body.y) * this.body.damp - this.body.velocity.y
-        let power = Math.sqrt(deltaX * deltaX + deltaY * deltaY) / this.body.acceleration / roomSpeed
-        if (power < 0.001)
-          this.countdown -= 20
-        else
-          this.countdown--
-
-        return {
-            goal: {
-                x: this.body.x + deltaX,
-                y: this.body.y + deltaY,
-            },
-            power: Math.min(1, power),
+        if (this.countdown) {
+            if (util.getDistance(this.body, this.myGoal) < 1) { this.countdown--; }
+            return {
+                goal: {
+                    x: this.myGoal.x,
+                    y: this.myGoal.y,
+                },
+            };
         }
     }
 }
-ioTypes.canRepel = class extends IO {
-    constructor(body) {
-        super(body)
+class io_canRepel extends IO {
+    constructor(b) {
+        super(b);
     }
-
+    
     think(input) {
         if (input.alt && input.target) {
-            let x = this.body.master.master.x - this.body.x
-            let y = this.body.master.master.y - this.body.y
-            // if (x * x + y * y < 2250000) // (50 * 30) ^ 2
-            return {
-              target: {
-                x: -input.target.x,
-                y: -input.target.y,
-              },
-              main: true,
-            }
+            return {                
+                target: {
+                    x: -input.target.x,
+                    y: -input.target.y,
+                },  
+                main: true,
+            };
         }
     }
 }
-ioTypes.alwaysFire = class extends IO {
+class io_alwaysFire extends IO {
     constructor(body) {
-        super(body)
+        super(body);
     }
 
     think() {
         return {
             fire: true,
-        }
+        };
     }
 }
-ioTypes.targetSelf = class extends IO {
+class io_targetSelf extends IO {
     constructor(body) {
-        super(body)
+        super(body);
     }
 
     think() {
         return {
             main: true,
             target: { x: 0, y: 0, },
-        }
+        };
     }
 }
-ioTypes.mapAltToFire = class extends IO {
+class io_mapAltToFire extends IO {
     constructor(body) {
-        super(body)
+        super(body);
     }
 
     think(input) {
         if (input.alt) {
             return {
                 fire: true,
-            }
+            };
         }
     }
 }
-ioTypes.onlyAcceptInArc = class extends IO {
+class io_onlyAcceptInArc extends IO {
     constructor(body) {
-        super(body)
+        super(body);
     }
 
     think(input) {
@@ -559,135 +458,125 @@ ioTypes.onlyAcceptInArc = class extends IO {
                     fire: false,
                     alt: false,
                     main: false,
-                }
+                };
             }
         }
     }
 }
-ioTypes.nearestDifferentMaster = class extends IO {
+class io_nearestDifferentMaster extends IO {
     constructor(body) {
-        super(body)
-        this.targetLock = undefined
-        this.tick = ran.irandom(30)
-        this.lead = 0
-        this.validTargets = this.buildList(body.fov)
+        super(body);
+        this.targetLock = undefined;
+        this.tick = ran.irandom(30);
+        this.lead = 0;
+        this.validTargets = this.buildList(body.fov / 2);
+        this.oldHealth = body.health.display();
     }
+
     buildList(range) {
         // Establish whom we judge in reference to
         let m = { x: this.body.x, y: this.body.y, },
             mm = { x: this.body.master.master.x, y: this.body.master.master.y, },
             mostDangerous = 0,
             sqrRange = range * range,
-            sqrRangeMaster = range * range * 4/3,
-            keepTarget = false
+            keepTarget = false;
         // Filter through everybody...
-        let out = entities.filter(e => {
-          // Only look at those within our view, and our parent's view, not dead, not invisible, not our kind, not a bullet/trap/block etc
-          return (e.health.amount > 0) &&
-                 (!e.invuln) &&
-                 (e.master.master.team !== this.body.master.master.team) &&
-                 (e.master.master.team !== -101) &&
-                 (e.master.master.alpha > 0.5) &&
-                 (e.type === 'tank' || e.type === 'crasher' || (!this.body.aiSettings.fixedFriend && e.type === 'fixed') || (!this.body.aiSettings.shapeFriend && e.type === 'food')) &&
-                 (this.body.aiSettings.parentView  || ((e.x -  m.x) * (e.x -  m.x) < sqrRange && (e.y -  m.y) * (e.y -  m.y) < sqrRange)) &&
-                 (this.body.aiSettings.skynet      || ((e.x - mm.x) * (e.x - mm.x) < sqrRangeMaster && (e.y - mm.y) * (e.y - mm.y) < sqrRangeMaster)) &&
-                 (!this.body.aiSettings.ignoreBase || room.isNotInBase(e))
-        }).filter((e) => {
+        let out = entities.map(e => {
+            // Only look at those within our view, and our parent's view, not dead, not our kind, not a bullet/trap/block etc
+            if (e.health.amount > 0) {
+            if (!e.invuln) {
+            if (e.master.master.team !== this.body.master.master.team) {
+            if (e.master.master.team !== -101) {
+            if (e.type === 'tank' || e.type === 'crasher' || (!this.body.aiSettings.shapefriend && e.type === 'food')) {
+            if (Math.abs(e.x - m.x) < range && Math.abs(e.y - m.y) < range) {
+            if (!this.body.aiSettings.blind || (Math.abs(e.x - mm.x) < range && Math.abs(e.y - mm.y) < range)) return e;
+            } } } } } }
+        }).filter((e) => { return e; });
+        
+        if (!out.length) return [];
+
+        out = out.map((e) => {
             // Only look at those within range and arc (more expensive, so we only do it on the few)
-          if (this.body.firingArc == null || this.body.aiSettings.view360 ||
-            Math.abs(util.angleDifference(util.getDirection(this.body, e), this.body.firingArc[0])) < this.body.firingArc[1]) {
-            mostDangerous = Math.max(e.dangerValue, mostDangerous)
-            return true
-          }
-          return false
-        }).filter((e) => {
-          // Only return the highest tier of danger
-          if (this.body.aiSettings.farm || e.dangerValue === mostDangerous) {
-            if (this.targetLock && e.id === this.targetLock.id) keepTarget = true
-            return true
-          }
-          return false
-        });
+            let yaboi = false;
+            if (Math.pow(this.body.x - e.x, 2) + Math.pow(this.body.y - e.y, 2) < sqrRange) {
+                if (this.body.firingArc == null || this.body.aiSettings.view360) {
+                    yaboi = true;
+                } else if (Math.abs(util.angleDifference(util.getDirection(this.body, e), this.body.firingArc[0])) < this.body.firingArc[1]) yaboi = true;
+            }
+            if (yaboi) {                
+                mostDangerous = Math.max(e.dangerValue, mostDangerous);
+                return e;
+            }
+        }).filter((e) => { 
+            // Only return the highest tier of danger
+            if (e != null) { if (this.body.aiSettings.farm || e.dangerValue === mostDangerous) { 
+                if (this.targetLock) { if (e.id === this.targetLock.id) keepTarget = true; }
+                return e; 
+            } } 
+        }); 
         // Reset target if it's not in there
-        if (!keepTarget) this.targetLock = undefined
-        return out
+        if (!keepTarget) this.targetLock = undefined;
+        return out;
     }
 
     think(input) {
-        if (this.body.alpha < 0.5) return {}
         // Override target lock upon other commands
         if (input.main || input.alt || this.body.master.autoOverride) {
-            this.targetLock = undefined; return {}
-        }
+            this.targetLock = undefined; return {};
+        } 
         // Otherwise, consider how fast we can either move to ram it or shoot at a potiential target.
         let tracking = this.body.topSpeed,
-            range = this.body.fov
+            range = this.body.fov / 2;
         // Use whether we have functional guns to decide
         for (let i=0; i<this.body.guns.length; i++) {
-            if (this.body.guns[i].canShoot) {
-                let v = this.body.guns[i].getTracking()
-                tracking = v.speed
-                range = Math.min(range, v.speed * v.range)
-                break
+            if (this.body.guns[i].canShoot && !this.body.aiSettings.skynet) {
+                let v = this.body.guns[i].getTracking();
+                tracking = v.speed;
+                range = Math.min(range, v.speed * v.range);
+                break;
             }
         }
         // Check if my target's alive
-        if (this.targetLock) {
-          let m = { x: this.body.x, y: this.body.y, },
-              mm = { x: this.body.master.master.x, y: this.body.master.master.y, },
-              sqrRange = range * range,
-              sqrRangeMaster = range * range * 4/3,
-              e = this.targetLock
-          if ((e.health.amount > 0) &&
-             (!e.invuln) &&
-             (e.master.master.team !== this.body.master.master.team) &&
-             (e.master.master.team !== -101) &&
-             (e.alpha > 0.5) &&
-             (e.type === 'tank' || e.type === 'crasher' || (!this.body.aiSettings.fixedFriend && e.type === 'fixed') || (!this.body.aiSettings.shapeFriend && e.type === 'food')) &&
-             (this.body.aiSettings.parentView  || ((e.x -  m.x) * (e.x -  m.x) < sqrRange && (e.y -  m.y) * (e.y -  m.y) < sqrRange)) &&
-             (this.body.aiSettings.skynet      || ((e.x - mm.x) * (e.x - mm.x) < sqrRangeMaster && (e.y - mm.y) * (e.y - mm.y) < sqrRangeMaster)) &&
-             (!this.body.aiSettings.ignoreBase || room.isNotInBase(e))) {
-          } else {
-            this.targetLock = undefined
-            this.tick = 100
-          }
-        }
+        if (this.targetLock) { if (this.targetLock.health.amount <= 0) {
+            this.targetLock = undefined;
+            this.tick = 100;
+        } }
         // Think damn hard
         if (this.tick++ > 15 * roomSpeed) {
-            this.tick = 0
-            this.validTargets = this.buildList(range)
+            this.tick = 0;
+            this.validTargets = this.buildList(range);
             // Ditch our old target if it's invalid
             if (this.targetLock && this.validTargets.indexOf(this.targetLock) === -1) {
-                this.targetLock = undefined
+                this.targetLock = undefined;
             }
             // Lock new target if we still don't have one.
             if (this.targetLock == null && this.validTargets.length) {
-                this.targetLock = (this.validTargets.length === 1) ? this.validTargets[0] : nearest(this.validTargets, { x: this.body.x, y: this.body.y })
-                this.tick = -90
+                this.targetLock = (this.validTargets.length === 1) ? this.validTargets[0] : nearest(this.validTargets, { x: this.body.x, y: this.body.y });
+                this.tick = -90;
             }
         }
         // Lock onto whoever's shooting me.
-        // let damageRef = (this.body.bond == null) ? this.body : this.body.bond
+        // let damageRef = (this.body.bond == null) ? this.body : this.body.bond;
         // if (damageRef.collisionArray.length && damageRef.health.display() < this.oldHealth) {
-        //     this.oldHealth = damageRef.health.display()
+        //     this.oldHealth = damageRef.health.display();
         //     if (this.validTargets.indexOf(damageRef.collisionArray[0]) === -1) {
-        //         this.targetLock = (damageRef.collisionArray[0].master.id === -1) ? damageRef.collisionArray[0].source : damageRef.collisionArray[0].master
+        //         this.targetLock = (damageRef.collisionArray[0].master.id === -1) ? damageRef.collisionArray[0].source : damageRef.collisionArray[0].master;
         //     }
         // }
         // Consider how fast it's moving and shoot at it
         if (this.targetLock != null) {
-            let radial = this.targetLock.velocity
+            let radial = this.targetLock.velocity;
             let diff = {
                 x: this.targetLock.x - this.body.x,
                 y: this.targetLock.y - this.body.y,
-            }
-            // Refresh lead time
+            };
+            /// Refresh lead time
             if (this.tick % 4 === 0) {
-                this.lead = 0
+                this.lead = 0;
                 // Find lead time (or don't)
                 if (!this.body.aiSettings.chase) {
-                    let toi = timeOfImpact(diff, radial, tracking)
-                    this.lead = toi
+                    let toi = timeOfImpact(diff, radial, tracking);
+                    this.lead = toi;
                 }
             }
             // And return our aim
@@ -698,123 +587,122 @@ ioTypes.nearestDifferentMaster = class extends IO {
                 },
                 fire: true,
                 main: true,
-            }
+            }; 
         }
-        return {}
+        return {};
     }
 }
-ioTypes.avoid = class extends IO {
+class io_avoid extends IO {
     constructor(body) {
-        super(body)
+        super(body);
     }
 
     think(input) {
-        let masterId = this.body.master.id
-        let range = this.body.size * this.body.size * 100
-        this.avoid = nearest(
-            entities,
+        let masterId = this.body.master.id;
+        let range = this.body.size * this.body.size * 100 ;
+        this.avoid = nearest( 
+            entities, 
             { x: this.body.x, y: this.body.y },
-            function(test, sqrdst) {
+            function(test, sqrdst) { 
                 return (
-                    test.master.id !== masterId &&
+                    test.master.id !== masterId && 
                     (test.type === 'bullet' || test.type === 'drone' || test.type === 'swarm' || test.type === 'trap' || test.type === 'block') &&
                     sqrdst < range
                 ); }
-        )
+        );
         // Aim at that target
-        if (this.avoid != null) {
+        if (this.avoid != null) { 
             // Consider how fast it's moving.
-            let delt = new Vector(this.body.velocity.x - this.avoid.velocity.x, this.body.velocity.y - this.avoid.velocity.y)
-            let diff = new Vector(this.avoid.x - this.body.x, this.avoid.y - this.body.y);
-            let comp = (delt.x * diff. x + delt.y * diff.y) / delt.length / diff.length
-            let goal = {}
+            let delt = new Vector(this.body.velocity.x - this.avoid.velocity.x, this.body.velocity.y - this.avoid.velocity.y);
+            let diff = new Vector(this.avoid.x - this.body.x, this.avoid.y - this.body.y);            
+            let comp = (delt.x * diff. x + delt.y * diff.y) / delt.length / diff.length;
+            let goal = {};
             if (comp > 0) {
                 if (input.goal) {
-                    let goalDist = Math.sqrt(range / (input.goal.x * input.goal.x + input.goal.y * input.goal.y))
+                    let goalDist = Math.sqrt(range / (input.goal.x * input.goal.x + input.goal.y * input.goal.y));
                     goal = {
                         x: input.goal.x * goalDist - diff.x * comp,
                         y: input.goal.y * goalDist - diff.y * comp,
-                    }
+                    };
                 } else {
                     goal = {
                         x: -diff.x * comp,
                         y: -diff.y * comp,
-                    }
+                    };
                 }
-                return goal
+                return goal;
             }
         }
     }
 }
-ioTypes.minion = class extends IO {
+class io_minion extends IO {
     constructor(body) {
-        super(body)
-        this.turnwise = 1
+        super(body);
+        this.turnwise = 1;
     }
 
     think(input) {
         if (this.body.aiSettings.reverseDirection && ran.chance(0.005)) { this.turnwise = -1 * this.turnwise; }
         if (input.target != null && (input.alt || input.main)) {
-            let sizeFactor = Math.sqrt(this.body.master.size / this.body.master.SIZE)
-            let leash = 82 * sizeFactor
-            let orbit = 140 * sizeFactor
-            let repel = 142 * sizeFactor
-            let goal
-            let power = 1
-            let target = new Vector(input.target.x, input.target.y)
+            let sizeFactor = Math.sqrt(this.body.master.size / this.body.master.SIZE);
+            let leash = 82 * sizeFactor;
+            let orbit = 140 * sizeFactor;
+            let repel = 142 * sizeFactor;
+            let goal;
+            let power = 1;
+            let target = new Vector(input.target.x, input.target.y);
             if (input.alt) {
                 // Leash
                 if (target.length < leash) {
                     goal = {
                         x: this.body.x + target.x,
                         y: this.body.y + target.y,
-                    }
+                    };
                 // Spiral repel
                 } else if (target.length < repel) {
-                    let dir = -this.turnwise * target.direction + Math.PI / 5
+                    let dir = -this.turnwise * target.direction + Math.PI / 5;
                     goal = {
                         x: this.body.x + Math.cos(dir),
                         y: this.body.y + Math.sin(dir),
-                    }
+                    };
                 // Free repel
                 } else {
                     goal = {
                         x: this.body.x - target.x,
                         y: this.body.y - target.y,
-                    }
+                    };
                 }
             } else if (input.main) {
                 // Orbit point
-                let dir = this.turnwise * target.direction + 0.01
+                let dir = this.turnwise * target.direction + 0.01;
                 goal = {
                     x: this.body.x + target.x - orbit * Math.cos(dir),
-                    y: this.body.y + target.y - orbit * Math.sin(dir),
-                }
+                    y: this.body.y + target.y - orbit * Math.sin(dir), 
+                };
                 if (Math.abs(target.length - orbit) < this.body.size * 2) {
-                    power = 0.7
+                    power = 0.7;
                 }
             }
-            return {
+            return { 
                 goal: goal,
                 power: power,
-            }
+            };
         }
     }
 }
-ioTypes.hangOutNearMaster = class extends IO {
+class io_hangOutNearMaster extends IO {
     constructor(body) {
-        super(body)
-        this.acceptsFromTop = false
-        this.orbit = 30
-        this.currentGoal = { x: this.body.source.x, y: this.body.source.y, }
-        this.timer = 0
+        super(body);
+        this.acceptsFromTop = false;
+        this.orbit = 30;
+        this.currentGoal = { x: this.body.source.x, y: this.body.source.y, };
+        this.timer = 0;
     }
     think(input) {
-        if (this.body.invisible[1]) return {}
-        if (this.body.source !== this.body) {
-            let bound1 = this.orbit * 0.8 + this.body.source.size + this.body.size
-            let bound2 = this.orbit * 1.5 + this.body.source.size + this.body.size
-            let dist = util.getDistance(this.body, this.body.source) + Math.PI / 8;
+        if (this.body.source != this.body) {
+            let bound1 = this.orbit * 0.8 + this.body.source.size + this.body.size;
+            let bound2 = this.orbit * 1.5 + this.body.source.size + this.body.size;
+            let dist = util.getDistance(this.body, this.body.source) + Math.PI / 8; 
             let output = {
                 target: {
                     x: this.body.velocity.x,
@@ -822,218 +710,112 @@ ioTypes.hangOutNearMaster = class extends IO {
                 },
                 goal: this.currentGoal,
                 power: undefined,
-            };
+            };        
             // Set a goal
             if (dist > bound2 || this.timer > 30) {
-                this.timer = 0
+                this.timer = 0;
 
-                let dir = util.getDirection(this.body, this.body.source) + Math.PI * ran.random(0.5);
-                let len = ran.randomRange(bound1, bound2)
-                let x = this.body.source.x - len * Math.cos(dir)
-                let y = this.body.source.y - len * Math.sin(dir)
+                let dir = util.getDirection(this.body, this.body.source) + Math.PI * ran.random(0.5); 
+                let len = ran.randomRange(bound1, bound2);
+                let x = this.body.source.x - len * Math.cos(dir);
+                let y = this.body.source.y - len * Math.sin(dir);
                 this.currentGoal = {
                     x: x,
                     y: y,
-                };
+                };        
             }
             if (dist < bound2) {
-                output.power = 0.15
+                output.power = 0.15;
                 if (ran.chance(0.3)) { this.timer++; }
             }
-            return output
+            return output;
         }
     }
 }
-ioTypes.spinWhenIdle = class extends IO {
-    constructor(body) {
-        super(body)
-        this.a = 0
+class io_spin extends IO {
+    constructor(b) {
+        super(b);
+        this.a = 0;
     }
-
+    
     think(input) {
-        if (input.target) {
-          this.a = Math.atan2(input.target.y, input.target.x)
-          return input
-        }
-        this.a += 0.02
-        return {
-          target: {
-            x: Math.cos(this.a),
-            y: Math.sin(this.a),
-          },
-          main: true
-        }
-    }
-}
-ioTypes.slowspin = class extends IO {
-    constructor(body) {
-        super(body)
-        this.a = 0
-    }
-
-    think(input) {
-        this.a += 0.02
-        let offset = 0
+        this.a += 0.05;
+        let offset = 0;
         if (this.body.bond != null) {
-            offset = this.body.bound.angle
+            offset = this.body.bound.angle;
         }
-        return {
+        return {                
             target: {
                 x: Math.cos(this.a + offset),
                 y: Math.sin(this.a + offset),
-            },
+            },  
             main: true,
-        };
+        };        
     }
 }
-ioTypes.spin = class extends IO {
-    constructor(body) {
-        super(body)
-        this.a = 0
+class io_fastspin extends IO {
+    constructor(b) {
+        super(b);
+        this.a = 0;
     }
-
+    
     think(input) {
-        this.a += 0.04
-        let offset = 0
+        this.a += 0.072;
+        let offset = 0;
         if (this.body.bond != null) {
-            offset = this.body.bound.angle
+            offset = this.body.bound.angle;
         }
-        return {
+        return {                
             target: {
                 x: Math.cos(this.a + offset),
                 y: Math.sin(this.a + offset),
-            },
+            },  
             main: true,
-        };
+        };        
     }
 }
-ioTypes.fastspin = class extends IO {
-    constructor(body) {
-        super(body)
-        this.a = 0
+class io_reversespin extends IO {
+    constructor(b) {
+        super(b);
+        this.a = 0;
     }
-
+    
     think(input) {
-        this.a += 0.08
-        let offset = 0
+        this.a -= 0.05;
+        let offset = 0;
         if (this.body.bond != null) {
-            offset = this.body.bound.angle
+            offset = this.body.bound.angle;
         }
-        return {
+        return {                
             target: {
                 x: Math.cos(this.a + offset),
                 y: Math.sin(this.a + offset),
-            },
+            },  
             main: true,
-        };
+        };        
     }
 }
-ioTypes.counterslowspin = class extends IO {
-    constructor(body) {
-        super(body)
-        this.a = 0
+class io_dontTurn extends IO {
+    constructor(b) {
+        super(b);
     }
-
-    think(input) {
-        this.a -= 0.02
-        let offset = 0
-        if (this.body.bond != null) {
-            offset = this.body.bound.angle
-        }
-        return {
-            target: {
-                x: Math.cos(this.a + offset),
-                y: Math.sin(this.a + offset),
-            },
-            main: true,
-        };
-    }
-}
-ioTypes.lmg = class extends IO {
-    constructor(body) {
-        super(body)
-        this.a = 0
-    }
-
-    think(input) {
-        if (!input.main) {
-          this.a = 0
-          return {}
-        }
-        this.a++
-        let offset = Math.atan2(this.body.master.y, this.body.master.x)
-        return {
-            target: {
-                x: Math.cos(offset - this.a * 0.12),
-                y: Math.sin(offset - this.a * 0.12),
-            },
-            main: true,
-        };
-    }
-}
-ioTypes.teaming = class extends IO { // AFT
-    constructor(body) {
-        super(body)
-        this.a = 0
-    }
-
-    think(input) {
-        this.a += 0.4
-        let offset = 0
-        if (this.body.bond != null) {
-            offset = this.body.bound.angle
-        }
-        return {
-            target: {
-                x: Math.cos(this.a + offset),
-                y: Math.sin(this.a + offset),
-            },
-            main: true,
-        };
-    }
-}
-ioTypes.reversespin = class extends IO {
-    constructor(body) {
-        super(body)
-        this.a = 0
-    }
-
-    think(input) {
-        this.a -= 0.05
-        let offset = 0
-        if (this.body.bond != null) {
-            offset = this.body.bound.angle
-        }
-        return {
-            target: {
-                x: Math.cos(this.a + offset),
-                y: Math.sin(this.a + offset),
-            },
-            main: false,
-        };
-    }
-}
-ioTypes.dontTurn = class extends IO {
-    constructor(body) {
-        super(body)
-    }
-
+    
     think(input) {
         return {
             target: {
-                x: 0,
-                y: 1,
-            },
+                x: 1,
+                y: 0,
+            },  
             main: true,
-        };
+        };        
     }
 }
-ioTypes.fleeAtLowHealth = class extends IO {
-    constructor(body) {
-        super(body)
-        this.fear = util.clamp(ran.gauss(0.7, 0.15), 0.1, 0.9)
+class io_fleeAtLowHealth extends IO {
+    constructor(b) {
+        super(b);
+        this.fear = util.clamp(ran.gauss(0.7, 0.15), 0.1, 0.9);
     }
-
+    
     think(input) {
         if (input.fire && input.target != null && this.body.health.amount < this.body.health.max * this.fear) {
             return {
@@ -1041,11 +823,11 @@ ioTypes.fleeAtLowHealth = class extends IO {
                     x: this.body.x - input.target.x,
                     y: this.body.y - input.target.y,
                 },
-            }
+            };
         }
     }
-}
 
+}
 
 /***** ENTITIES *****/
 // Define skills
@@ -1063,21 +845,10 @@ const skcnv = {
     mob: 9,
 };
 const levelers = [
-         1,  2,  3,  4,  5,  6,  7,  8,  9,
-    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-    30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
-    41, 43, 45
-]
-let curve = (() => {
-    let make = x => Math.log(4*x + 1) / Math.log(5)
-    let a = []
-    for (let i = 0; i < c.MAX_SKILL * 2; i++)
-      a.push(make(i/c.MAX_SKILL))
-    return x => a[x * c.MAX_SKILL]
-})()
-let apply = (f, x) => x < 0 ? 1 / (1 - x * f) : f * x + 1
-
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
+  23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 38, 40, 42, 44, 50,
+  56, 59, 64, 69, 70, 71, 73, 74, 75,
+];
 class Skill {
     constructor(inital = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) { // Just skill stuff. 
         this.raw = inital;
@@ -1127,51 +898,46 @@ class Skill {
     }
 
     update() {
+        let curve = (() => {
+            function make(x) { return Math.log(4*x + 1) / Math.log(5); }
+            let a = [];
+            for (let i=0; i<c.MAX_SKILL*2; i++) { a.push(make(i/c.MAX_SKILL)); }
+            // The actual lookup function
+            return x => { return a[x * c.MAX_SKILL]; };
+        })();
+        function apply(f, x) { return (x<0) ? 1 / (1 - x * f) : f * x + 1; }
         for (let i=0; i<10; i++) {
             if (this.raw[i] > this.caps[i]) {
-                this.points += this.raw[i] - this.caps[i]
-                this.raw[i] = this.caps[i]
+                this.points += this.raw[i] - this.caps[i];
+                this.raw[i] = this.caps[i];
             }
         }
-        let attrib = []
+        let attrib = [];
         for (let i=0; i<5; i++) { for (let j=0; j<2; j+=1) {
             attrib[i + 5*j] = curve(
                 (
-                    this.raw[i + 5*j] +
+                    this.raw[i + 5*j] + 
                     this.bleed(i, j)
-                ) / c.MAX_SKILL)
+                ) / c.MAX_SKILL);
         } }
+        this.rld = Math.pow(0.5, attrib[skcnv.rld]);
+        this.pen = apply(2.5, attrib[skcnv.pen]);
+        this.str = apply(2, attrib[skcnv.str]);
+        this.dam = apply(3, attrib[skcnv.dam]);
+        this.spd = 0.5 + apply(1.5, attrib[skcnv.spd]);
 
-        this.rld = Math.pow(0.5, attrib[skcnv.rld])
-        this.rcs = Math.pow(0.55, attrib[skcnv.mob])
+        this.acl = apply(0.5, attrib[skcnv.rld]);
+        
+        this.rst = 0.5 * attrib[skcnv.str] + 2.5 * attrib[skcnv.pen];
+        this.ghost = attrib[skcnv.pen];
+        
+        this.shi = c.GLASS_HEALTH_FACTOR * apply(3 / c.GLASS_HEALTH_FACTOR - 1, attrib[skcnv.shi]);
+        this.atk = apply(1, attrib[skcnv.atk]);
+        this.hlt = c.GLASS_HEALTH_FACTOR * apply(2 / c.GLASS_HEALTH_FACTOR - 1, attrib[skcnv.hlt]);
+        this.mob = apply(0.8, attrib[skcnv.mob]); 
+        this.rgn = apply(25, attrib[skcnv.rgn]);
 
-        this.pen = apply(2.7, attrib[skcnv.pen])
-        this.str = apply(2.2, attrib[skcnv.str])
-        this.dam = apply(3.2, attrib[skcnv.dam])
-        this.spd = 0.5 + apply(1.5, attrib[skcnv.spd])
-
-        this.acl = apply(0.8, attrib[skcnv.rld])
-
-        this.rst = 0.5 * attrib[skcnv.str] + 2.5 * attrib[skcnv.pen]
-        this.ghost = attrib[skcnv.pen]
-
-        this.shi = apply(0.3, attrib[skcnv.shi])
-        this.atk = apply(0.085, attrib[skcnv.atk])
-        this.hlt = apply(0.3, attrib[skcnv.hlt])
-        this.mob = apply(0.8, attrib[skcnv.mob])
-        this.rgn = apply(10, attrib[skcnv.rgn])
-
-        this.brst = 0.3 * (0.5 * attrib[skcnv.atk] + 0.5 * attrib[skcnv.hlt] + attrib[skcnv.rgn])
-
-        /*
-        this.shi = apply(3, attrib[skcnv.shi])
-        this.atk = apply(0.1, attrib[skcnv.atk])
-        this.hlt = apply(0.2, attrib[skcnv.hlt])
-        this.mob = apply(0.8, attrib[skcnv.mob])
-        this.rgn = apply(15, attrib[skcnv.rgn])
-
-        this.brst = 0.25 * (apply(4.5, attrib[skcnv.atk]) + apply(4.5, attrib[skcnv.hlt]) + apply(9, attrib[skcnv.rgn]))
-        */
+        this.brst = 0.3 * (0.5 * attrib[skcnv.atk] + 0.5 * attrib[skcnv.hlt] + attrib[skcnv.rgn]);
     }
 
     set(thing) {
@@ -1207,9 +973,8 @@ class Skill {
             if (this.score - this.deduction >= this.levelScore) {
                 this.deduction += this.levelScore;
                 this.level += 1;
-               // INCREASE POINTS
-                this.points = 45;
-                if (this.level == c.TIER_1 || this.level == c.TIER_2 || this.level == c.TIER_3 || this.level == c.TIER_4) {
+                this.points += this.levelPoints;
+                if (this.level == c.TIER_1 || this.level == c.TIER_2 || this.level == c.TIER_3) {
                     this.canUpgrade = true;
                 }
                 this.update();
@@ -1368,6 +1133,8 @@ class Gun {
                 false : info.PROPERTIES.SYNCS_SKILLS;
             this.negRecoil = (info.PROPERTIES.NEGATIVE_RECOIL == null) ?
                 false : info.PROPERTIES.NEGATIVE_RECOIL;
+            this.shootOnDeath = (info.PROPERTIES.SHOOT_ON_DEATH == null) ?
+                false : info.PROPERTIES.SHOOT_ON_DEATH;
         }                    
         let position = info.POSITION;
         this.length = position[0] / 10;
@@ -1656,35 +1423,7 @@ class Gun {
 var minimap = [];
 var views = [];
 var entitiesToAvoid = [];
-const dirtyCheck = (p, r) => entitiesToAvoid.some(e => {
-  let dx = p.x - e.x
-  let dy = p.y - e.y
-  let away = r + e.size
-  return dx * dx + dy * dy < away * away
-})
-const minDistance2 = p => entitiesToAvoid.map(e => {
-  let dx = p.x - e.x
-  let dy = p.y - e.y
-  return dx * dx + dy * dy
-}).reduce((a, b) => Math.min(a, b), Infinity)
-const findDirtyCheck = (find, radius) => {
-  for (let i = 0; i < 20; i++) {
-    let possibility = find()
-    if (!dirtyCheck(possibility, radius))
-      return possibility
-  }
-  let location = null
-  let distance2 = 0
-  for (let i = 0; i < 10; i++) {
-    let possibility = find()
-    let attempt = minDistance2(possibility)
-    if (attempt > distance2) {
-      distance2 = attempt
-      location = possibility
-    }
-  }
-  return location || find()
-}
+const dirtyCheck = (p, r) => { return entitiesToAvoid.some(e => { return Math.abs(p.x - e.x) < r + e.size && Math.abs(p.y - e.y) < r + e.size; }); };
 const grid = new hshg.HSHG();
 var entitiesIdLog = 0;
 var entities = [];
@@ -1722,12 +1461,12 @@ var bringToLife = (() => {
         if (my.settings.attentionCraver && !faucet.main && my.range) {
             my.range -= 1;
         }
-        // Invisibility
+ // Invisibility
         if (my.invisible[1]) {
-          my.alpha = Math.max(0, my.alpha - my.invisible[1])
-          if (!my.velocity.isShorterThan(0.1) || my.damageReceived)
-            my.alpha = Math.min(1, my.alpha + my.invisible[0])
-        }
+		  	    my.alpha = Math.max(0.01, my.alpha - my.invisible[1]);
+		  	    if (!(my.velocity.x * my.velocity.x + my.velocity.y * my.velocity.y < 0.15 * 0.15) || my.damageRecieved)
+		  	      	my.alpha = Math.min(1, my.alpha + my.invisible[0]);
+		    } else my.alpha = 1;
         // So we start with my master's thoughts and then we filter them down through our control stack
         my.controllers.forEach(AI => {
             let a = AI.think(b);
@@ -1831,6 +1570,7 @@ class Entity {
         this.isGhost = false;
         this.killCount = { solo: 0, assists: 0, bosses: 0, killers: [], };
         this.creationTime = (new Date()).getTime();
+        this.shootOnDeath = false
         // Inheritance
         this.master = master;
         this.source = this;
@@ -1986,7 +1726,7 @@ class Entity {
         if (set.CONTROLLERS != null) { 
             let toAdd = [];
             set.CONTROLLERS.forEach((ioName) => {
-                toAdd.push(new ioTypes[ioName](this))
+                toAdd.push(eval('new io_' + ioName + '(this)'));
             });
             this.addController(toAdd);
         }
@@ -2086,8 +1826,12 @@ class Entity {
         if (set.ALPHA != null) { 
             this.alpha = set.ALPHA;
         }
-        if (set.INVISIBLE != null) { 
-            this.invisible = set.INVISIBLE;
+        if (set.INVISIBLE != null) this.invisible = [
+			  	  set.INVISIBLE[0],
+			  	  set.INVISIBLE[1]
+			  ];
+        if (set.SHOOT_ON_DEATH != null) {
+           this.shootOnDeath = set.SHOOT_ON_DEATH
         }
         if (set.DANGER != null) { 
             this.dangerValue = set.DANGER; 
@@ -2112,16 +1856,6 @@ class Entity {
         if (set.UPGRADES_TIER_3 != null) { 
             set.UPGRADES_TIER_3.forEach((e) => {
                 this.upgrades.push({ class: e, level: c.TIER_3, index: e.index,});
-            });
-        }
-        if (set.UPGRADES_TIER_4 != null) { 
-            set.UPGRADES_TIER_4.forEach((e) => {
-                this.upgrades.push({ class: e, level: c.TIER_4, index: e.index,});
-            });
-        }      
-        if (set.UPGRADES_TIER_5 != null) { 
-            set.UPGRADES_TIER_5.forEach((e) => {
-                this.upgrades.push({ class: e, level: c.TIER_5, index: e.index,});
             });
         }
         if (set.SIZE != null) {
@@ -2335,7 +2069,7 @@ class Entity {
             alpha: this.alpha,
             facing: this.facing,
             vfacing: this.vfacing,
-            twiggle: this.facingType === 'autospin' || this.facingType === 'suspin',
+            twiggle: this.facingType === 'autospin' || (this.facingType === 'locksFacing' && this.control.alt),
             layer: (this.bond != null) ? this.bound.layer : 
                     (this.type === 'wall') ? 11 : 
                     (this.type === 'food') ? 10 : 
@@ -2366,7 +2100,7 @@ class Entity {
             let saveMe = this.upgrades[number].class;           
             this.upgrades = [];
             this.define(saveMe);
-            this.sendMessage('Upgraded to ' + this.label + '.');
+            this.sendMessage('You have upgraded to ' + this.label + '.');
             let ID = this.id;
             entities.forEach(instance => {
                 if (instance.settings.clearOnMasterUpgrade && instance.master.id === ID) {
@@ -2402,21 +2136,15 @@ class Entity {
             this.maxSpeed = this.topSpeed;
             this.damp = 0.05;
             break;
-        case 'motor':
-            this.maxSpeed = 0;            
-            if (this.topSpeed) {
-                this.damp = a / this.topSpeed;
-            }
-            if (gactive) {
-                let len = Math.sqrt(g.x * g.x + g.y * g.y);
-                engine = {
-                    x: a * g.x / len,
-                    y: a * g.y / len,
-                };
-            }
+        case "accel":
+            this.maxSpeed = this.topSpeed;
+            this.damp = -0.05;
             break;
-            case 'DEV':
-            this.name = " X: " + Math.floor(this.x) + " Y: " + Math.floor(this.y);
+        case "grow":
+            this.SIZE += 1;
+            this.maxSpeed = this.topSpeed;
+            break;
+        case 'motor':
             this.maxSpeed = 0;            
             if (this.topSpeed) {
                 this.damp = a / this.topSpeed;
@@ -2511,8 +2239,8 @@ class Entity {
         case 'toTarget': 
             this.facing = Math.atan2(t.y, t.x);
             break; 
-        case 'suspin': 
-            this.facing -= 0.05 / roomSpeed;
+        case 'locksFacing': 
+            if (!this.control.alt) this.facing = Math.atan2(t.y, t.x);
             break;
         case 'looseWithTarget':
         case 'looseToTarget':
@@ -2590,20 +2318,20 @@ class Entity {
             this.accel.y -= Math.min(this.y - this.realSize + 50, 0) * c.ROOM_BOUND_FORCE / roomSpeed;
             this.accel.y -= Math.max(this.y + this.realSize - room.height - 50, 0) * c.ROOM_BOUND_FORCE / roomSpeed;
         }
-        if (room.gameMode.endsWith('tdm') && this.type !== 'food') { 
+        if (room.gameMode === 'tdm' && this.type !== 'food') { 
             let loc = { x: this.x, y: this.y, };
             if (
-                (this.team !== -100 && room.isIn('bas4', loc))
+                (this.team !== -1 && room.isIn('bas1', loc)) ||
+                (this.team !== -100 && room.isIn('bas2', loc)) ||
+                (this.team !== -3 && room.isIn('bas3', loc)) ||
+                (this.team !== -4 && room.isIn('bas4', loc)) ||
+                (this.team !== -5 && room.isIn('barr', loc))
             ) { this.kill(); }
         }
     }
 
     contemplationOfMortality() {
         if (this.invuln) {
-            this.damageRecieved = 0;
-            return 0;
-        }
-        if (this.invinc) {
             this.damageRecieved = 0;
             return 0;
         }
@@ -2619,6 +2347,11 @@ class Entity {
                 this.health.amount -= this.health.getDamage(1 / roomSpeed);
             }
         }
+              if (this.shootOnDeath) {
+                if (this.range <= 1 ) {
+                    this.define(Class.bullet) // i might update this and make it define as the class it was
+                }
+              }
         // Shield regen and damage
         if (this.shield.max) {
             if (this.damageRecieved !== 0) {
@@ -2637,33 +2370,29 @@ class Entity {
 
         // Check for death
         if (this.isDead()) {
-       if (this.label == 'Dominator')
-                {
-                    sockets.broadcast("A Sanctuary has been Restored!")
-                    this.ondeath = () => {
-                    setTimeout (() => {
-                    //setTimeout(() => closemode(), 1e3);
-                    let type =  Class.sanctuary;
-                    let o = new Entity(this);
-                    o.define(type);
-                    o.team = -1
-                    o.color = 10;  
-                    },25)
-                }
-                }
-       if (this.label == 'Sanctuary')
-                {
-                    sockets.broadcast("A Sanctuary has been Destroyed!")
-                    this.ondeath = () => {
-                    setTimeout (() => {
-                    let type =  Class.neutraldom;
-                    let o = new Entity(this);
-                    o.define(type);
-                    o.team = -100
-                    o.color = 3;  
-                    },25)
-                }
-                }
+//Shoot on death
+      this.guns.forEach(gun => {
+      if (gun.shootOnDeath) {
+        // get Skills
+        let sk =
+          gun.bulletStats === "master" ? gun.body.skill : gun.bulletStats;
+        // Find the end of the gun
+        if (gun.body != null) {
+          let gx =
+            gun.offset *
+              Math.cos(gun.direction + gun.angle + gun.body.facing) +
+            (1.5 * gun.length - (gun.width * gun.settings.size) / 2) *
+              Math.cos(gun.angle + gun.body.facing);
+          let gy =
+            gun.offset *
+              Math.sin(gun.direction + gun.angle + gun.body.facing) +
+            (1.5 * gun.length - (gun.width * gun.settings.size) / 2) *
+              Math.sin(gun.angle + gun.body.facing);
+        // FIRE!
+        gun.fire(gx, gy, sk);
+        }
+      } 
+      })
             // Initalize message arrays
             let killers = [], killTools = [], notJustFood = false;
             // If I'm a tank, call me a nameless player
@@ -2707,13 +2436,9 @@ class Entity {
                         killText += (instance.name == '') ? (killText == '') ? 'An unnamed player' : 'an unnamed player' : instance.name;
                         killText += ' and ';
                     }
-                    if (instance.master.type !== 'food' && instance.master.type !== 'crusher') {
-                        killText += (instance.name == '') ? (killText == '') ? 'An unnamed player' : 'an unnamed player' : instance.name;
-                        killText += ' and ';
-                    }
                     // Only if we give messages
                     if (dothISendAText) { 
-                        instance.sendMessage('You killed ' + name + ((killers.length > 1) ? ' (with some assistance).' : '.')); 
+                        instance.sendMessage('You killed ' + name + ((killers.length > 1) ? ' (with some help).' : '.')); 
                     }
                 });
                 // Prepare the next part of the next 
@@ -2728,16 +2453,16 @@ class Entity {
             });
             // Prepare it and clear the collision array.
             killText = killText.slice(0, -5);
-            if (killText === 'You have been killed') killText = 'You have died a stupid death';
+            if (killText === 'You have been kille') killText = 'You have died a stupid death';
             this.sendMessage(killText + '.');
             // If I'm the leader, broadcast it:
             if (this.id === room.topPlayerID) {
                 let usurptText = (this.name === '') ? 'The leader': this.name;
                 if (notJustFood) { 
-                    usurptText += ' has been Obliterated by';
+                    usurptText += ' has been usurped by';
                     killers.forEach(instance => {
                         usurptText += ' ';
-                        usurptText += (instance.name === '') ? 'a nameless tank' : instance.name;
+                        usurptText += (instance.name === '') ? 'an unnamed player' : instance.name;
                         usurptText += ' and';
                     });
                     usurptText = usurptText.slice(0, -4);
@@ -2796,13 +2521,14 @@ class Entity {
         // Remove from the collision grid
         this.removeFromGrid();
         this.isGhost = true;
-    if (this.ondeath) this.ondeath();
+        if(this.ondeath) this.ondeath();
     }    
     
     isDead() {
         return this.health.amount <= 0; 
     }
 }
+
 /*** SERVER SETUP ***/
 // Make a speed monitor
 var logs = (() => {
@@ -3162,7 +2888,7 @@ const sockets = (() => {
                 util.log('[INFO] Socket closed. Views: ' + views.length + '. Clients: ' + clients.length + '.');
             }
             // Being kicked 
-            function kick(socket, reason = 'Error.') {
+            function kick(socket, reason = 'No reason given.') {
                 util.warn(reason + ' Kicking.');
                 socket.lastWords('K');
             }
@@ -3230,9 +2956,7 @@ const sockets = (() => {
                     if (players.indexOf(socket.player) != -1) { util.remove(players, players.indexOf(socket.player));  }
                     // Free the old view
                     if (views.indexOf(socket.view) != -1) { util.remove(views, views.indexOf(socket.view)); socket.makeView(); }
-                    socket.player = socket.spawn(name);
-                    socket.player.name = name;
-                    //socket.token = token;
+                    socket.player = socket.spawn(name);     
                     // Give it the room state
                     if (!needsRoom) { 
                         socket.talk(
@@ -3247,9 +2971,9 @@ const sockets = (() => {
                     // Start the update rhythm immediately
                     socket.update(0);  
                     // Log it    
-                    util.log('[INFO] ' + (m[0]) + (needsRoom !== -1 ? ' joined' : ' rejoined') + ' the game! Players: ' + players.length);   
+                    util.log('[INFO] ' + (m[0]) + (needsRoom ? ' joined' : ' rejoined') + ' the game! Players: ' + players.length);   
                 } break;
-case "h":
+                case "h":
             if (!socket.status.deceased) {
               // Chat system!!.
 
@@ -3261,12 +2985,12 @@ case "h":
                 if (message.startsWith("/help")) {
                   player.body.sendMessage("/km ~ Destroys your tank");
                   player.body.sendMessage("/illegal ~ You have been warned");
-                  player.body.sendMessage("/reset ~ resets you to basic");
                   return 1;
                 }
                 // suicide command
-                if (message.startsWith("/km")) {
+                if (message.startsWith("/km")){
                   {
+                    player.body.invinc = false,
                     player.body.destroy();
                     return 1;
                   }
@@ -3274,12 +2998,6 @@ case "h":
                 if (message.startsWith("/illegal")) {
                   {
                     player.body.define(Class.funny);
-                    return 1;
-                  }
-                }
-                if (message.startsWith("/reset")) {
-                  {
-                    player.body.define(Class.basics);
                     return 1;
                   }
                 }
@@ -3314,24 +3032,15 @@ case "h":
                 player.body.sendMessage("You're sending messages too quickly!");
             }
             break;
-          case "S":
-            {
-              // clock syncing
-              if (m.length !== 1) {
-                socket.kick("Ill-sized sync packet.");
-                return 1;
-              }
-              // Get data
-              let synctick = m[0];
-              // Verify it
-              if (typeof synctick !== "number") {
-                socket.kick("Weird sync packet.");
-                return 1;
-              }
-              // Bounce it back
-              socket.talk("S", synctick, util.time());
-            }
-            break;
+                case 'S': { // clock syncing
+                    if (m.length !== 1) { socket.kick('Ill-sized sync packet.'); return 1; }
+                    // Get data
+                    let synctick = m[0];
+                    // Verify it
+                    if (typeof synctick !== 'number') { socket.kick('Weird sync packet.'); return 1; }
+                    // Bounce it back
+                    socket.talk('S', synctick, util.time());
+                } break;
                 case 'p': { // ping
                     if (m.length !== 1) { socket.kick('Ill-sized ping.'); return 1; }
                     // Get data
@@ -3442,38 +3151,18 @@ case "h":
                 case 'L': { // level up cheat
                     if (m.length !== 0) { socket.kick('Ill-sized level-up request.'); return 1; }
                     // cheatingbois
-                    if (player.body != null) { if (player.body.skill.level < c.SKILL_CHEAT_CAP || ((socket.key === process.env.SECRET) && player.body.skill.level < 45)) {
+                    if (player.body != null) { if (player.body.skill.level < c.SKILL_CHEAT_CAP || ((socket.key === process.env.SECRET || process.env.SUPERSECRET) && player.body.skill.level < 45)) {
                         player.body.skill.score += player.body.skill.levelScore;
                         player.body.skill.maintain();
                         player.body.refreshBodyAttributes();
                     } }
                 } break;
-                     case 'K': { // God Mode Cheat
-                    if (m.length !== 0) { socket.kick('Ill-sized god mode request.'); return 1; }
-                    // cheatingbois
-                       
-                    if (player.body != null) {if (socket.key === "developer") {                                
-                       if (player.body.invinc == false) {
-                                player.body.invinc = true; 
-                      player.body.sendMessage('God Mode: ON');
-                    } else {
-                 player.body.invinc = false; 
-                player.body.sendMessage('God Mode: OFF');
-                }} else {
-player.body.sendMessage('You are not allowed to turn on God Mode.')}}}
-                
-break;
-                
                 case '0': { // testbed cheat
                     if (m.length !== 0) { socket.kick('Ill-sized testbed request.'); return 1; }
                     // cheatingbois
                     if (player.body != null) { if (socket.key === "developer") {
-                        player.body.define(Class.testbed) //THINGS
-                    }                      
-                                             }
-                    if (player.body != null) { if (socket.key === process.env.SECRET2) {
-                        player.body.define(Class.testbed) //THINGS
-                    }}
+                        player.body.define(Class.developer);
+                    } }
                 } break;
                 default: socket.kick('Bad packet index.');
                 }
@@ -3632,7 +3321,12 @@ break;
                         gui.score.update(b.skill.score);
                         gui.points.update(b.skill.points);
                         // Update the upgrades
-                        let upgrades = b.upgrades.filter(e => b.skill.level >= e.level).map(e => e.index);
+                        let upgrades = [];
+                        b.upgrades.forEach(function(e) {
+                            if (b.skill.level >= e.level) { 
+                                upgrades.push(e.index);
+                            }
+                        });
                         gui.upgrades.update(upgrades);
                         // Update the stats and skills
                         gui.stats.update();
@@ -3706,49 +3400,7 @@ break;
                     // Find the desired team (if any) and from that, where you ought to spawn
                     player.team = socket.rememberedTeam;
                     switch (room.gameMode) {
-                        case "2tdm": {
-                            // Count how many others there are
-                            let census = [1, 1], scoreCensus = [1, 1];
-                            players.forEach(p => { 
-                                census[p.team - 1]++; 
-                                if (p.body != null) { scoreCensus[p.team - 2] += p.body.skill.score; }
-                            });
-                            let possiblities = [];
-                            for (let i=0, m=0; i<2; i++) {
-                                let v = Math.round(1000000 * (room['bas'+(i+1)].length + 1) / (census[i] + 1) / scoreCensus[i]);
-                                if (v > m) {
-                                    m = v; possiblities = [i];
-                                }
-                                else if (v == m) { possiblities.push(i); }
-                            }
-                            // Choose from one of the least ones
-                            if (player.team == null) { player.team = ran.choose(possiblities) + 1; }
-                            // Make sure you're in a base
-                            if (room['bas' + player.team].length) do { loc = room.randomType('bas' + player.team); } while (dirtyCheck(loc, 50));
-                            else do { loc = room.gaussInverse(5); } while (dirtyCheck(loc, 50));
-                        } break;
-                        case "3tdm": {
-                            // Count how many others there are
-                            let census = [1, 1, 1], scoreCensus = [1, 1, 1];
-                            players.forEach(p => { 
-                                census[p.team - 1]++; 
-                                if (p.body != null) { scoreCensus[p.team - 1] += p.body.skill.score; }
-                            });
-                            let possiblities = [];
-                            for (let i=0, m=0; i<3; i++) {
-                                let v = Math.round(1000000 * (room['bas'+(i+1)].length + 1) / (census[i] + 1) / scoreCensus[i]);
-                                if (v > m) {
-                                    m = v; possiblities = [i];
-                                }
-                                else if (v == m) { possiblities.push(i); }
-                            }
-                            // Choose from one of the least ones
-                            if (player.team == null) { player.team = ran.choose(possiblities) + 1; }
-                            // Make sure you're in a base
-                            if (room['bas' + player.team].length) do { loc = room.randomType('bas' + player.team); } while (dirtyCheck(loc, 50));
-                            else do { loc = room.gaussInverse(5); } while (dirtyCheck(loc, 50));
-                        } break;
-                        case "4tdm": {
+                        case "siege": {
                             // Count how many others there are
                             let census = [1, 1, 1, 1], scoreCensus = [1, 1, 1, 1];
                             players.forEach(p => { 
@@ -3761,12 +3413,12 @@ break;
                                 if (v > m) {
                                     m = v; possiblities = [i];
                                 }
-                                else if (v == m) { possiblities.push(i); }
+                                if (v == m) { possiblities.push(i); }
                             }
                             // Choose from one of the least ones
                             if (player.team == null) { player.team = ran.choose(possiblities) + 1; }
-                            // Make sure you're in a base
-                            if (room['bas' + player.team].length) do { loc = room.randomType('bas' + player.team); } while (dirtyCheck(loc, 50));
+                            // Make sure you're in a sanctuary
+                            if (room['sanc'].length) do { loc = room.randomType('sanc'); } while (dirtyCheck(loc, 50));
                             else do { loc = room.gaussInverse(5); } while (dirtyCheck(loc, 50));
                         } break;
                         default: do { loc = room.gaussInverse(5); } while (dirtyCheck(loc, 50));
@@ -3780,36 +3432,23 @@ break;
                         // Dev hax
                         if (socket.key === 'testl' || socket.key === 'testk') {
                             body.name = "\u200b" + body.name;
-                            body.define(Class.developer);
+                            body.define({ CAN_BE_ON_LEADERBOARD: false, });
                         }                        
-                        body.addController(new ioTypes.listenToPlayer(body, player)); // Make it listen
+                        body.addController(new io_listenToPlayer(body, player)); // Make it listen
                         body.sendMessage = content => messenger(socket, content); // Make it speak
                         body.invuln = true; // Make it safe
                     player.body = body;
                     // Decide how to color and team the body
                     switch (room.gameMode) {
-                        case "2tdm": 
-                        case "3tdm": 
-                        case "4tdm": {
-                            body.team = -player.team;
-                            body.color = [10, 11, 12, 15][player.team - 1];
+                        case "siege": {
+                            body.team = -1;
+                            body.color = 10;
                         } break;
                         default: {
                             body.color = (c.RANDOM_COLORS) ? 
                                 ran.choose([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]) : 12; // red
                         }
                     }
-                  /*
-                      switch (room.gameMode) {
-                        case "siege": {
-                            body.team = -player.team;
-                            body.color = [10, 11, 12, 15][player.team - 1];
-                        } break;
-                        default: {
-                            body.color = (c.RANDOM_COLORS) ? 
-                                ran.choose([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]) : 12; // red
-                        }
-                    }*/
                     // Decide what to do about colors when sending updates and stuff
                     player.teamColor = (!c.RANDOM_COLORS && room.gameMode === 'ffa') ? 10 : body.color; // blue
                     // Set up the targeting structure
@@ -4283,10 +3922,10 @@ break;
                 let getBarColor = entry => {
                   switch (entry.team) {
                     case -100: return entry.color
-                    case -1: return 4
-                    case -2: return 1
-                    case -3: return 5
-                    case -4: return 0
+                    case -1: return 10
+                    case -2: return 11
+                    case -3: return 12
+                    case -4: return 15
                     default:
                       if (room.gameMode[0] === '2' || room.gameMode[0] === '3' || room.gameMode[0] === '4') return entry.color
                       return 11
@@ -4363,7 +4002,6 @@ break;
                   for (let my of entities)
                     if ((my.type === 'wall' && my.alpha > 0.2) ||
                          my.type === 'miniboss' ||
-                         my.type === 'bobboss' ||
                         (my.type === 'tank' && my.lifetime))
                       all.push({
                         id: my.id,
@@ -4481,13 +4119,6 @@ break;
                 // Get information about the new connection and verify it
                 util.log('A client is trying to connect...');
                 // Set it up
-                let normalizeIP = ip => ip.trim().replace(/^::ffff:/, '')
-                socket.ip = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',') : []
-                if (req.connection.remoteAddress)
-                  socket.ip.push(req.connection.remoteAddress)
-                socket.ip = socket.ip.map(normalizeIP).filter(r => r.length)
-
-                util.log(socket.ip.join(', ') + ' is trying to connect...')
                 socket.binaryType = 'arraybuffer';
                 socket.key = '';
                 socket.player = { camera: {}, };
@@ -4509,7 +4140,6 @@ break;
                     needsFullMap: true,
                     needsNewBroadcast: true, 
                     lastHeartbeat: util.time(),
-                     lastChatTime: util.time()
                 };  
                 // Set up loops
                 socket.loops = (() => {
@@ -4630,121 +4260,8 @@ var gameloop = (() => {
                 return 1;
             }
             return 0;
-        }
-        function reflectCollide(wall, bounce) {
-          if (bounce.type === 'crasher' || bounce.passThroughWalls) return;
-          if (bounce.x + bounce.size < wall.x - wall.size
-           || bounce.x - bounce.size > wall.x + wall.size
-           || bounce.y + bounce.size < wall.y - wall.size
-           || bounce.y - bounce.size > wall.y + wall.size) return 0
-          if (wall.intangibility) return 0
-          let bounceBy = bounce.type === 'tank' ? 1.0 : bounce.type === ('miniboss', 'bobboss') ? 2.5 : 0.1
+      }
 
-          let pushVertical = wall.facing === Math.PI / 2
-          let pushHorizontal = wall.facing === Math.PI
-
-          // cases:   normal       sided
-          // top     C T T T C   C T T T C
-          // exposed L I T I R   T T T T T
-          //         L L X R R   X X X X X
-          // exposed L I B I R   B B B B B
-          // bottom  C B B B C   C B B B C
-          // C = corner with check
-          // I = corner inverse
-          // X = push toward nearest side
-
-          let left = bounce.x < wall.x - wall.size
-          let right = bounce.x > wall.x + wall.size
-          let top = bounce.y < wall.y - wall.size
-          let bottom = bounce.y > wall.y + wall.size
-
-          let leftExposed = bounce.x - bounce.size < wall.x - wall.size
-          let rightExposed = bounce.x + bounce.size > wall.x + wall.size
-          let topExposed = bounce.y - bounce.size < wall.y - wall.size
-          let bottomExposed = bounce.y + bounce.size > wall.y + wall.size
-
-          let intersected = true
-
-          if (left && right) {
-            left = right = false
-          }
-          if (top && bottom) {
-            top = bottom = false
-          }
-          if (leftExposed && rightExposed) {
-            leftExposed = rightExposed = false
-          }
-          if (topExposed && bottomExposed) {
-            topExposed = bottomExposed = false
-          }
-
-          if (pushVertical) {
-            left = leftExposed = false
-            right = rightExposed = false
-            top = topExposed = bounce.y < wall.y
-            bottom = bottomExposed = bounce.y > wall.y
-            bounceBy *= 0.2
-          } else if (pushHorizontal) {
-            top = topExposed = false
-            bottom = bottomExposed = false
-            left = leftExposed = bounce.x < wall.x
-            right = rightExposed = bounce.x > wall.x
-            bounceBy *= 0.2
-          }
-
-          if ((left && !top && !bottom) || (leftExposed && !topExposed && !bottomExposed)) {
-            bounce.accel.x -= (bounce.x + bounce.size - wall.x + wall.size) * bounceBy
-          } else if ((right && !top && !bottom) || (rightExposed && !topExposed && !bottomExposed)) {
-            bounce.accel.x -= (bounce.x - bounce.size - wall.x - wall.size) * bounceBy
-          } else if ((top && !left && !right) || (topExposed && !leftExposed && !rightExposed)) {
-            bounce.accel.y -= (bounce.y + bounce.size - wall.y + wall.size) * bounceBy
-          } else if ((bottom && !left && !right) || (bottomExposed && !leftExposed && !rightExposed)) {
-            bounce.accel.y -= (bounce.y - bounce.size - wall.y - wall.size) * bounceBy
-          } else {
-            let x = leftExposed ? -wall.size : rightExposed ? wall.size : 0
-            let y = topExposed ? -wall.size : bottomExposed ? wall.size : 0
-
-            let point = new Vector(wall.x + x - bounce.x, wall.y + y - bounce.y)
-
-            if (!x || !y) {
-              if (bounce.x + bounce.y < wall.x + wall.y) { // top left
-                if (bounce.x - bounce.y < wall.x - wall.y) { // bottom left
-                  bounce.accel.x -= (bounce.x + bounce.size - wall.x + wall.size) * bounceBy
-                } else { // top right
-                  bounce.accel.y -= (bounce.y + bounce.size - wall.y + wall.size) * bounceBy
-                }
-              } else { // bottom right
-                if (bounce.x - bounce.y < wall.x - wall.y) { // bottom left
-                  bounce.accel.y -= (bounce.y - bounce.size - wall.y - wall.size) * bounceBy
-                } else { // top right
-                  bounce.accel.x -= (bounce.x - bounce.size - wall.x - wall.size) * bounceBy
-                }
-              }
-            } else if (!(left || right || top || bottom)) {
-              let force = (bounce.size / point.length - 1) * bounceBy / 2
-              bounce.accel.x += point.x * force
-              bounce.accel.y += point.y * force
-            } else if (point.isShorterThan(bounce.size)) {
-              //let force = (bounce.size - point.length) / point.length * bounceBy
-              // once to get collision amount, once to norm
-              let force = (bounce.size / point.length - 1) * bounceBy / 2 // simplified
-              bounce.accel.x -= point.x * force
-              bounce.accel.y -= point.y * force
-            } else {
-              intersected = false
-            }
-          }
-
-          if (intersected) {
-            if (bounce.type === 'food') {
-              if (bounce.collisionArray.some(r => r.type === 'wall' && r.shape === 4))
-                bounce.kill()
-            } else if (bounce.type !== 'tank' && bounce.type !== 'miniboss' && bounce.type !== 'bobboss') {
-              bounce.kill()
-            }
-            bounce.collisionArray.push(wall)
-          }
-        }
         function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
             // Prepare to check
             let tock = Math.min(my.stepRemaining, n.stepRemaining),
@@ -4999,35 +4516,13 @@ var gameloop = (() => {
             }
             if (!instance.activation.check() && !other.activation.check()) { util.warn('Tried to collide with an inactive instance.'); return 0; }
             // Handle walls
-/*            if (instance.type === 'wall' || other.type === 'wall') {
+            if (instance.type === 'wall' || other.type === 'wall') {
                 let a = (instance.type === 'bullet' || other.type === 'bullet') ? 
                     1 + 10 / (Math.max(instance.velocity.length, other.velocity.length) + 10) : 
                     1;
                 if (instance.type === 'wall') advancedcollide(instance, other, false, false, a);
                 else advancedcollide(other, instance, false, false, a);
-            } else*/
-            ///////// NOT A GIT MERGE CONFLICT /////////
-            if (instance.type === 'wall' || other.type === 'wall') {
-                if (instance.type === 'wall' && other.type === 'wall') return
-                let wall = instance.type === 'wall' ? instance : other
-                let entity = instance.type === 'wall' ? other : instance
-                if (wall.shape === 4) {
-                  reflectCollide(wall, entity)
-                } else {
-                  let a = entity.type === 'bullet' ?
-                      1 + 10 / (entity.velocity.length + 10) :
-                      1;
-                  advancedcollide(wall, entity, false, false, a)
-                }
-            } else if (instance.type === 'fixed' || other.type === 'fixed') {
-                if (instance.type === 'fixed' && other.type === 'fixed') return
-                if (instance.team === other.team && (instance.settings.hitsOwnType === 'never' || other.settings.hitsOwnType === 'never')) return
-                if (instance.type === 'fixed')
-                  advancedcollide(instance, other, instance.team !== other.team, instance.team === other.team, false, 1)
-                else
-                  advancedcollide(other, instance, instance.team !== other.team, instance.team === other.team, false, 1)
-            } else 
-            ///////// NOT A GIT MERGE CONFLICT /////////
+            } else
             // If they can firm collide, do that
             if ((instance.type === 'crasher' && other.type === 'food') || (other.type === 'crasher' && instance.type === 'food')) {
                 firmcollide(instance, other);
@@ -5105,7 +4600,7 @@ var gameloop = (() => {
         logs.collide.mark();
         // Do entities life
         logs.entities.set();
-            entities.forEach(e => entitiesliveloop(e));
+        entities.forEach(e => entitiesliveloop(e));
         logs.entities.mark();
         logs.master.mark();
         // Remove dead entities
@@ -5139,109 +4634,16 @@ var maintainloop = (() => {
         let roidcount = room.roid.length * room.width * room.height / room.xgrid / room.ygrid / 50000 / 1.5;
         let rockcount = room.rock.length * room.width * room.height / room.xgrid / room.ygrid / 250000 / 1.5;
         let count = 0;
-        for (let i=Math.ceil(roidcount); i; i--) { count++; placeRoid('roid', Class.obstacle2); }
-        for (let i=Math.ceil(roidcount * 0.3); i; i--) { count++; placeRoid('roid', Class.babyObstacle2); }
-        for (let i=Math.ceil(rockcount * 0.8); i; i--) { count++; placeRoid('rock', Class.obstacle2); }
-        for (let i=Math.ceil(rockcount * 0.5); i; i--) { count++; placeRoid('rock', Class.babyObstacle2); }
+        for (let i=Math.ceil(roidcount); i; i--) { count++; placeRoid('roid', Class.obstacle); }
+        for (let i=Math.ceil(roidcount * 0.3); i; i--) { count++; placeRoid('roid', Class.babyObstacle); }
+        for (let i=Math.ceil(rockcount * 0.8); i; i--) { count++; placeRoid('rock', Class.obstacle); }
+        for (let i=Math.ceil(rockcount * 0.5); i; i--) { count++; placeRoid('rock', Class.babyObstacle); }
         util.log('Placing ' + count + ' obstacles!');
     }
     placeRoids();
-  
-  
-    let placerandomWalls = () => {
-      let count = 0
-      for (let loc of room['rwall']) {
-        let o = new Entity(loc)
-        o.define(Class.mazeObstacle)
-        o.SIZE = (room.xgridWidth + room.ygridHeight) / 4
-        o.team = -101
-        o.protect()
-        o.life()
-        count++;
-      }
-      util.log('Placing ' + count + ' regular walls!')
-    }
-    placerandomWalls()
-
-    let placeWalls = () => {
-      let count = 0
-      for (let loc of room['wall']) {
-        let o = new Entity(loc)
-        o.define(Class.mazeObstacle)
-        o.SIZE = (room.xgridWidth + room.ygridHeight) / 4
-        o.team = -101
-        o.protect()
-        o.life()
-        count++;
-      }
-      util.log('Placing ' + count + ' regular walls!')
-    }
-    placeWalls()
-
-    let placesusWalls = () => {
-      let count = 0
-      for (let loc of room['mall']) {
-        let o = new Entity(loc)
-        o.define(Class.mazeObstacle2)
-        o.SIZE = (room.xgridWidth + room.ygridHeight) / 4 / 2
-        o.team = -101
-        o.protect()
-        o.life()
-        count++;
-      }
-      util.log('Placing ' + count + ' regular walls!')
-    }
-    placesusWalls()
-
-
-  
-        let placebigWalls = () => {
-      let count = 0
-      for (let loc of room['ball']) {
-        let o = new Entity(loc)
-        o.define(Class.bigMazeObstacle)
-        o.SIZE = (room.xgridWidth + room.ygridHeight) / 4 * 3
-        o.team = -101
-        o.protect()
-        o.life()
-        count++;
-      }
-      util.log('Placing ' + count + ' regular walls!')
-    }
-    placebigWalls()
-  
- 
-        let placethiccWalls = () => {
-      let count = 0
-      for (let loc of room['tall']) {
-        let o = new Entity(loc)
-        o.define(Class.thiccMazeObstacle)
-        o.SIZE = (room.xgridWidth + room.ygridHeight) / 4 * 5
-        o.team = -101
-        o.protect()
-        o.life()
-        count++;
-      }
-      util.log('Placing ' + count + ' regular walls!')
-    }
-    placethiccWalls()
-
-        let placethiccbigWalls = () => {
-      let count = 0
-      for (let loc of room['tbll']) {
-        let o = new Entity(loc)
-        o.define(Class.thiccbigMazeObstacle)
-        o.SIZE = (room.xgridWidth + room.ygridHeight) / 4 * 7
-        o.team = -101
-        o.protect()
-        o.life()
-        count++;
-      }
-      util.log('Placing ' + count + ' regular walls!')
-    }
-    placethiccbigWalls()
-  // Spawning functions
+    // Spawning functions
     let spawnBosses = (() => {
+        let wave = 1; //Define Wave.
         let timer = 0;
         let boss = (() => {
             let i = 0,
@@ -5268,15 +4670,14 @@ var maintainloop = (() => {
                     loc = typeOfLocation;
                     names = ran.chooseBossName(nameClass, number);
                     i = 0;
-                    if (n === 1) {
+                    if (n === 0) {
                         begin = 'A visitor is coming.';
                         arrival = names[0] + ' has arrived.'; 
                     } else {
-                        begin = 'Visitors are coming.';
+                        begin = 'Preparing to spawn..'; //Say that the wave has started
                         arrival = '';
-                        for (let i=0; i<n-2; i++) arrival += names[i] + ', ';
-                        arrival += names[n-2] + ' and ' + names[n-1] + ' have arrived.';
-                    }
+                        arrival += 'Wave ' + wave + ' has started!'; //Say what wave was started
+                    } wave += 1; //Increase it
                 },
                 spawn: () => {
                     sockets.broadcast(begin);
@@ -5290,32 +4691,31 @@ var maintainloop = (() => {
             };
         })();
         return census => {
-            if (timer > 70000 && ran.dice(160 - timer)) {
-                util.log('[SPAWN] Preparing to spawn...' + Class);
+            if (timer > 100 && ran.dice(110 - timer)) {
+                util.log('[SPAWN] Preparing to spawn...');
                 timer = 0;
                 let choice = [];
-                switch (ran.chooseChance(1, 1, 1, 1, 1)) {
-                    case 0: 
-                        choice = [[Class.elite_destroyer,Class.elite_sprayer,Class.elite_gunner,Class.elite_spawner], 1, 'a', 'bas4'];
+                switch (wave) { //The wave contenders
+                     case 1: 
+                        choice = [[Class.defender, Class.pig7, Class.elitepenta, Class.elite_nail, Class.nestkeeper, Class.fallmortar, Class.fallord, Class.swp11, Class.fallfighter, Class.fallenbooster, Class.elite_builder, Class.summoner, Class.elite_engineer, Class.elite_sprayer], 16, 'castle', 'nest']; 
+                        sockets.broadcast('WAVE 22');
                         break;
-                    case 1: 
-                        choice = [[Class.elite_destroyer,Class.elite_sprayer,Class.elite_battleship,Class.elite_spawner], 2, 'a', 'bas4'];
+                  case 2:
+                    choice = [[Class.foremost], 2, 'negro', 'nest']
+                    sockets.broadcast('ripoff legionary');
+                    break;
+                   case 2:
+                        choice = [[Class.outrage], 2, 'negro', 'nest']; 
+                        sockets.broadcast('FINAL BOSSES');
                         break;
-                    case 2: 
-                        choice = [[Class.palisade,Class.summoner,Class.skimboss,Class.cyclibe], 1, 'a', 'bas4']; 
-                        sockets.broadcast('A strange trembling...');
-                        break;
-                    case 3: 
-                        choice = [[Class.palisade,Class.summoner,Class.skimboss,Class.cyclibe], 2, 'a', 'bas4']; 
-                        sockets.broadcast('A strange trembling...');
-                        break; 
-                    case 4:
-                        choice = [[Class.elite_battleship], 1, 'a', 'bas4'];
-                        break;
-
+                    /*case 3: //The Arena Closer Wave
+                        choice = [[Class.susalization], 19, 'negro', 'sanc']; 
+                        sockets.broadcast('YOU WON THE GAME!');
+                        util.log('[INFO] The team won, closing the game...');
+                        break;*/
                 }
                 boss.prepareToSpawn(...choice);
-                setTimeout(boss.spawn, 300);
+                setTimeout(boss.spawn, 3000);
                 // Set the timeout for the spawn functions
             } else if (!census.miniboss) timer++;
         };
@@ -5324,7 +4724,7 @@ var maintainloop = (() => {
         if (ran.chance(1 -  0.5 * census.crasher / room.maxFood / room.nestFoodAmount)) {
             let spot, i = 30;
             do { spot = room.randomType('nest'); i--; if (!i) return 0; } while (dirtyCheck(spot, 100));
-            let type = (ran.dice(80)) ? ran.choose([Class.sentryGun, Class.sentrySwarm, Class.sentryTrap]) : Class.crasher;
+            let type = (ran.dice(80)) ? ran.choose([Class.sentryGun, Class.sentrySwarm, Class.sentryTrap, Class.sentryspawner]) : Class.crasher;
             let o = new Entity(spot);
                 o.define(type);
                 o.team = -100;
@@ -5335,12 +4735,12 @@ var maintainloop = (() => {
         // Make base protectors if needed.
             let f = (loc, team) => { 
                 let o = new Entity(loc);
-                    o.define(Class.neutraldom);
-                    o.team = team;
-                    o.color = [10][team-1];
+                    o.define(Class.baseProtector);
+                    o.team = -team;
+                    o.color = [10, 11, 12][team-1];
             };
-            for (let i=1; i<2; i++) {
-                room['bas' + i].forEach((loc) => { f(loc, i); }); //Don't spawn sanctuary in boss teritory
+            for (let i=1; i<5; i++) {
+                room['bap' + i].forEach((loc) => { f(loc, i); }); 
             }
         // Return the spawning function
         let bots = [];
@@ -5357,88 +4757,32 @@ var maintainloop = (() => {
                 }
             }).filter(e => { return e; });    
             // Spawning
-//            spawnCrasher(census);
+            spawnCrasher(census);
             spawnBosses(census);
             // Bots
                 if (bots.length < c.BOTS) {
-                    let spot;
-                    do {
-                        spot = room.random();
-                    } while (dirtyCheck(spot, 40))
-                    let o = new Entity(spot);
-                    o.color = 12;
-                  if (room.gameMode.endsWith('tdm')) {
-                    let team = Math.floor(room.gameMode.charAt(0)) + 1;
-                    o.team = -team;
-                    o.color = [10, 11, 12, 15][team - 1];
-                }
-                         let census = [1, 1/*, 1, 1*/];
-                         bots.forEach(p => { 
-                                census[-p.team - 1]++;; 
-                            });
-                            let possiblities = [];
-                            for (let i=0, m=0; i<4; i++) {
-                                let v = 1 / (census[i] + 1);
-                                if (v > m) {
-                                    m = v; possiblities = [i];
-                                }
-                                else if (v == m) { possiblities.push(i); }
-                            }
-                            // Choose from one of the least ones
-                            let team = ran.choose(possiblities) + 1;
-                            o.team = -team;
-                            console.log(possiblities, team, census);
-                            o.color = [4, 1, 5, 0][team - 1]; // temp fixed
+                    let o = new Entity(room.random());
+                   // o.color = 17;
                     o.define(Class.bot);
-                  
-                    o.define(Class.God);
-                  
+                    o.define((ran.dice(80)) ? ran.choose([Class.autotriple, Class.battleship, Class.shotgun2, Class.stream, Class.commander, Class.preda, Class.penta, Class.devas, Class.squirter, Class.autogunner, Class.sniper5, Class.auto4, Class.autominigun, Class.autoover, Class.sidewind, Class.peashoot, Class.giga3, Class.hybrid, Class.machine3, Class.bentliner, Class.overlord, Class.booster, Class.fighter, Class.necromancer, Class.engineer, Class.trihybrid, Class.manager, Class.prism, Class.octo, Class.spray, Class.miniwhack, Class.brawler, Class.boxer, Class.autopound, Class.artillery, Class.guntrap, Class.anni, Class.ordnance, Class.construct, Class.twodrive, Class.tally, Class.musket, Class.autobuilder, Class.drive, Class.ranger, Class.carrier, Class.spread, Class.sprayflame, Class.megamortar, Class.searcher, Class.triple, Class.gigadrive, Class.crossbow, Class.banshee, Class.overgunner, Class.autounderseer, Class.eagle, Class.conq, Class.split, Class.auto5, ]) : ran.choose([ Class.autotriple, Class.battleship, Class.shotgun2, Class.stream, Class.commander, Class.preda, Class.penta, Class.devas, Class.squirter, Class.autogunner, Class.sniper5, Class.auto4, Class.autominigun, Class.autoover, Class.sidewind, Class.peashoot, Class.giga3, Class.hybrid, Class.machine3, Class.bentliner, Class.overlord, Class.booster, Class.fighter, Class.necromancer, Class.engineer, Class.trihybrid, Class.manager, Class.prism, Class.octo, Class.spray, Class.miniwhack, Class.brawler, Class.boxer, Class.autopound, Class.artillery, Class.guntrap, Class.anni, Class.ordnance, Class.construct, Class.twodrive, Class.tally, Class.musket, Class.autobuilder, Class.drive, Class.ranger, Class.carrier, Class.spread, Class.sprayflame, Class.megamortar, Class.searcher, Class.triple, Class.gigadrive, Class.crossbow, Class.banshee, Class.overgunner, Class.autounderseer, Class.eagle, Class.conq, Class.split, Class.auto5]) );
                     o.name += ran.chooseBotName();
                     o.refreshBodyAttributes();
+                   // o.color = 17;
+                    o.team = -1;
+                    if (o.team = -1) {o.color = 10};
                     bots.push(o);
                 }
                 // Remove dead ones
                 bots = bots.filter(e => { return !e.isDead(); });
                 // Slowly upgrade them
                 bots.forEach(o => {
-                    if (o.skill.level < 60) {
-                        o.skill.score += 700;
-                        o.skill.maintain();        
+                    if (o.skill.score < 104068) {
+                        o.skill.score += 5000;
+                        o.skill.maintain();
                     }
-                if (o.upgrades.length)
-                  o.upgrade(Math.floor(Math.random() * 11))
-            }
-                    
-                );
-            
+                });
         };
     })();
-
- /*               if (bots.length < c.RAMBOTS) {
-                    let o = new Entity(room.random());
-                    o.color = 12;
-                    o.define(Class.rambot);
-                    o.define(Class.tri);
-                    o.name += ran.chooseBotName();
-                    o.refreshBodyAttributes();
-                    o.color = 12;
-                    bots.push(o);
-                }
-                // Remove dead ones
-                bots = bots.filter(e => { return !e.isDead(); });
-                // Slowly upgrade them
-                bots.forEach(o => {
-                    if (o.skill.level < 60) {
-                        o.skill.score += 700;
-                        o.skill.maintain();        }
-                if (o.upgrades.length)
-                  o.upgrade(Math.floor(Math.random() * 9))
-            }
-                    
-                );
-            
-        };
-    })();*/
     // The big food function
     let makefood = (() => {
         let food = [], foodSpawners = [];
@@ -5567,24 +4911,16 @@ var maintainloop = (() => {
         return () => {
             // Find and understand all food
             let census = {
-                [0]: 0, // Egg
-                [1]: 0, // Square
-                [2]: 0, // Triangle
-                [3]: 0, // Penta
-                [4]: 0, // Beta
-                [5]: 0, // Alpha
-                [6]: 0,
+                [0]: 0, // Beta
+                [1]: 0, // Alpha
+                [2]: 0,
                 tank: 0,
                 sum: 0,
             };
             let censusNest = {
-                [0]: 0, // Egg
-                [1]: 0, // Square
-                [2]: 0, // Triangle
-                [3]: 0, // Penta
-                [4]: 0, // Beta
-                [5]: 0, // Alpha
-                [6]: 0,
+                [0]: 0, // Beta
+                [1]: 0, // Alpha
+                [2]: 0,
                 sum: 0,
             };
             // Do the censusNest
@@ -5653,7 +4989,6 @@ var maintainloop = (() => {
     return () => {
         // Do stuff
         makenpcs();      
-        makefood(); 
         // Regen health and update the grid
         entities.forEach(instance => {
             if (instance.shield.max) {
@@ -5683,7 +5018,7 @@ var speedcheckloop = (() => {
             active = logs.entities.count();
         global.fps = (1000/sum).toFixed(2);
         if (sum > 1000 / roomSpeed / 30) { 
-            fails++;
+            //fails++;
             util.warn('~~ LOOPS: ' + loops + '. ENTITY #: ' + entities.length + '//' + Math.round(active/loops) + '. VIEW #: ' + views.length + '. BACKLOGGED :: ' + (sum * roomSpeed * 3).toFixed(3) + '%! ~~');
             util.warn('Total activation time: ' + activationtime);
             util.warn('Total collision time: ' + collidetime);
@@ -5696,7 +5031,7 @@ var speedcheckloop = (() => {
             util.warn('Total time: ' + (activationtime + collidetime + movetime + playertime + maptime + physicstime + lifetime + selfietime));
             if (fails > 60) {
                 util.error("FAILURE!");
-                process.exit(1);
+                //process.exit(1);
             }
         } else {
             fails = 0;
@@ -5711,34 +5046,18 @@ let server = http.createServer((req, res) => {
   switch (pathname) {
     case '/':
       res.writeHead(200)
-      res.end(`<!DOCTYPE html><h3>Arras.io Private server</h3><button onclick="location.href = 'http://arras.io/#host=' + location.host">Open</button>`)
-    break
-    case '/secret/totally-secret-file/classified/definitions.js':
-      res.writeHead(200)
-      res.end(fs.readFileSync('lib/definitions.js'))
+      res.end(`<!DOCTYPE html><h3>siege luminese !!111</h3><button onclick="location.href = 'http://arras.io/#host=' + location.host">Open</button>`)
     break
     case '/mockups.json':
       res.setHeader('Access-Control-Allow-Origin', '*')
       res.writeHead(200)
       res.end(mockupJsonData)
     break
-    case '/retard':
-      res.writeHead(200)
-      res.end(`<!DOCTYPE html><h3>Restart</h3><button onclick="this.disabled = true; fetch('/api/restart').then(() => this.disabled = false)">Restart</button>`)
-    break
-    case '/api/restart':
-      res.writeHead(204)
-      res.end(() => {
-        util.log('Restarting...')
-        process.exit()
-      })
-    break
     default:
       res.writeHead(404)
       res.end()
   }
 })
-
 
 let websockets = (() => {
     // Configure the websocketserver
@@ -5759,3 +5078,50 @@ let websockets = (() => {
 setInterval(gameloop, room.cycleSpeed);
 setInterval(maintainloop, 200);
 setInterval(speedcheckloop, 1000);
+if (room.wall) //Wall Spawner
+    for (let loc of room.wall) {
+         let o = new Entity(loc);
+         o.define(Class.wall);
+         o.team = -100;
+}
+if (room.barr)
+    for (let loc of room.barr) {
+         let o = new Entity(loc);
+         o.team = -100
+    }
+let sancount = 6; //How many sanctuaries did you put 
+if (sancount === 0) {
+      sockets.broadcast("Your team has lost the game.");
+      util.log("[INFO] The team has fallen.");
+      process.exit(0);
+}
+if (room.sanc) //Sanctuary Room
+    for (let loc of room.sanc) {
+         let o = new Entity(loc);
+         o.define(Class.sanctuary);
+         o.team = -1;
+         o.SIZE = 60;
+         o.color = 10;
+         o.ondeath = () => {
+           let i = new Entity(loc);
+           i.define(Class.desanctuaroyed);
+           i.team = -100;
+           i.SIZE = 60;
+           i.color = 3;
+           sancount -= 1;
+           sockets.broadcast("A sanctuary has been destroyed! " + sancount + " Sanctuaries Alive.");
+           util.log("[INFO] The team has lost an Sanctuary. " + sancount + " Sanctuaries Left.");
+           i.ondeath = () => {
+             let e = new Entity(loc);
+             e.define(Class.sanctuary);
+             e.team = -1;
+             e.SIZE = 60;
+             e.color = 10;
+             sancount += 1;
+             sockets.broadcast("A sanctuary has been revived! " + sancount + " Sanctuaries Alive.");
+             util.log("[INFO] The team has revived a Sanctuary. " + sancount + " Sanctuaries Left.");
+             e.ondeath = o.ondeath;
+             o = e;
+          };
+     };
+ }
