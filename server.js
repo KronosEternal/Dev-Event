@@ -3161,7 +3161,7 @@ const sockets = (() => {
                     if (m.length !== 0) { socket.kick('Ill-sized testbed request.'); return 1; }
                     // cheatingbois
                     if (player.body != null) { if (socket.key === "developer") {
-                        player.body.define(Class.developer);
+                        player.body.define(Class.elitepenta);
                     } }
                 } break;
                 default: socket.kick('Bad packet index.');
@@ -4697,17 +4697,17 @@ var maintainloop = (() => {
                 let choice = [];
                 switch (wave) { //The wave contenders
                      case 1: 
-                        choice = [[Class.defender, Class.pig7, Class.elitepenta, Class.elite_nail, Class.nestkeeper, Class.fallmortar, Class.fallord, Class.swp11, Class.fallfighter, Class.fallenbooster, Class.elite_builder, Class.summoner, Class.elite_engineer, Class.elite_sprayer], 16, 'castle', 'nest']; 
-                        sockets.broadcast('WAVE 22');
+                        choice = [[Class.defender, Class.pig7, Class.elite_nail, Class.nestkeeper, Class.fallmortar, Class.fallord, Class.swp11, Class.fallfighter, Class.fallenbooster, Class.elite_builder, Class.summoner, Class.elite_engineer, Class.elite_sprayer], 16, 'castle', 'nest']; 
+                        sockets.broadcast('NEGRO');
                         break;
                   case 2:
                     choice = [[Class.foremost], 2, 'negro', 'nest']
-                    sockets.broadcast('ripoff legionary');
+                    sockets.broadcast('RIPOFF');
                     break;
-                   case 2:
-                        choice = [[Class.outrage], 2, 'negro', 'nest']; 
-                        sockets.broadcast('FINAL BOSSES');
-                        break;
+                   case 3:
+                    choice = [[Class.outrage], 2, 'negro', 'nest']; 
+                    sockets.broadcast('FINAL BOSSES');
+                    break;
                     /*case 3: //The Arena Closer Wave
                         choice = [[Class.susalization], 19, 'negro', 'sanc']; 
                         sockets.broadcast('YOU WON THE GAME!');
