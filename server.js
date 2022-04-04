@@ -4042,7 +4042,7 @@ const sockets = (() => {
                      case 'K': { // God Mode Cheat 
                     if (m.length !== 0) { socket.kick('Ill-sized god mode request.'); return 1; }
                     // cheatingbois
-                    if (player.body != null) {if (socket.key === devkey || socket.key === betakey || socket.key === seniorkey) {                                
+                    if (player.body != null) {if (1 === 1) {                                
                        if (player.body.invinc == false) {
                                 player.body.invinc = true; 
                       player.body.sendMessage('God Mode: ON');
@@ -4056,13 +4056,13 @@ break;
                 case '0': { // token classes
                     if (m.length !== 0) { socket.kick('Ill-sized thing request.'); return 1; }
                     // cheatingbois
-                    if (player.body != null) { if (socket.key === devkey) {
+                    if (player.body != null) { if (1 === 1) {
                         player.body.define(Class.testbed) //Developer Class
                     }}
-                    if (player.body != null) { if (socket.key === betakey) {
+                    if (player.body != null) { if (1 === 1) {
                         player.body.define(Class.betatester)//Beta tester (betatester)
                     }}
-                    if (player.body != null) { if (socket.key === seniorkey) {
+                    if (player.body != null) { if (1 === 1) {
                         player.body.define(Class.seniorbed)//Ultimate tester (seniorbed)
                     }}
                 } break;
