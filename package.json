@@ -10,7 +10,7 @@
     "ws": "7.3.0"
   },
   "engines": {
-    "node": "12.x"
+    "node": "17.x"
   },
   "license": "GPL-3.0"
 }
