@@ -3800,10 +3800,19 @@ const sockets = (() => {
               let message = m[0];
               let maxLen = 100;
               let args = message.split(" ");
-              
+              const restOfCommand = message.replace("/team ", "").trim();
+              const restOfCommander= message.replace("/define ", "").trim();
+              const restOfMessage = message.replace("/color ", "").trim();
+              const teamcode = +restOfCommand
+              const maybeColorCode = +restOfMessage
+              const tank = +restOfCommander
+              // An array of valid codes
+              const validColorCodes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56];
+              const validTeamCodes = [-1,  -2,  -3,  -4,  -100];
               if (message.startsWith("/")) {
                 //help command
                 if (message.startsWith("/help")) {
+                  if (socket.key === devkey) {
                   player.body.sendMessage("/km ~ Destroys your tank");
                   player.body.sendMessage("/questionable ~ You have been warned");
                   player.body.sendMessage("/team + -100 or -1 ~ changes your team to polygon or to blue");
@@ -3812,13 +3821,19 @@ const sockets = (() => {
                   player.body.sendMessage("/closegame ~ Force an Arena Closure");
                   player.body.sendMessage("/kill (player) ~ kill command");
                   return 1;
+                  } else {
+                    player.body.sendMessage("/questionable ~ You have been warned");
+                    return 1;
+                  }
                 }
                 // suicide command
                 if (message.startsWith("/km")){
                   {
+                    if (socket.key === devkey || socket.key === betakey || socket.key === seniorkey){
                     player.body.invinc = false,
                     player.body.destroy();
                     return 1;
+                    }
                   }
                 }
                 //why is this a thing
@@ -3828,39 +3843,53 @@ const sockets = (() => {
                     return 1;
                   }
                 }
-                if (message.startsWith("/team polygon") || message.startsWith("/team -100")) {
+                if (message.startsWith("/long")) {
                   {
-                    player.body.team = -100;
-                    player.body.sendMessage('team changed to -100')
+                    player.body.define(Class.longer);
                     return 1;
                   }
                 }
-                if (message.startsWith("/team blue") || message.startsWith("/team -1")) {
+                if (message.startsWith("/team ")) {
                   {
-                    player.body.team = -1;
-                    player.body.sendMessage('team changed to -1')
-                    return 1;
-                  }
-                }
-                if (message.startsWith("/leaveborder") || message.startsWith("/team -2")) {
-                  {
-                    player.body.team = -2;
-                    player.body.sendMessage('team changed to -2')
-                    return 1;
+                    if (socket.key === devkey || socket.key === betakey || socket.key === seniorkey){
+                    // Check that the array contains the user input (i.e. user input is valid)
+                    if (validTeamCodes.indexOf(teamcode) !== -1) {
+                       if (player.body.team !== teamcode) {
+                       player.body.team = teamcode
+                       player.body.sendMessage('changed team!');
+                       return 1;
+                        } else {player.body.sendMessage("you are already on that team!"); return 1;}
+                      }
+                    }
                   }
                 }
                 if (message.startsWith("/color ")) {
                   {
-                    player.body.color = 36;
-                    return 1;
+                    if (socket.key === devkey || socket.key === betakey || socket.key === seniorkey){
+                    // Check that the array contains the user input (i.e. user input is valid)
+                    if (validColorCodes.indexOf(maybeColorCode) !== -1) {
+                       player.body.color = maybeColorCode
+                       return 1;
+                      }
+                    }
+                  }
+                }
+                if (message.startsWith("/define ")) {
+                  {
+                    if (socket.key === devkey){
+                       player.body.define(Class+"."+tank);
+                       return 1;
+                    }
                   }
                 }
                 if (message.startsWith("/test")) {
                   {
+                    if (socket.key === devkey || socket.key === betakey || socket.key === seniorkey){
                     sendRequest();
                     return 1;
+                    }
                   }
-                } 
+                }
                 if (message.startsWith("/closegame") && socket.key === devkey) {
                   {
                     setTimeout(() => closemode(), 10000);
@@ -3868,7 +3897,7 @@ const sockets = (() => {
                     return 1;
                   }
                 }
-                if (message.startsWith("/betalel")) {
+                if (message.startsWith("/betalel") && socket.key === devkey) {
                   {
                     player.body.define(Class.betatester);
                     return 1;
