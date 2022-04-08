@@ -3812,7 +3812,7 @@ const sockets = (() => {
               if (message.startsWith("/")) {
                 //help command
                 if (message.startsWith("/help")) {
-                  if (socket.key === devkey) {
+                  if (1 ===1) {
                   player.body.sendMessage("/km ~ Destroys your tank");
                   player.body.sendMessage("/questionable ~ You have been warned");
                   player.body.sendMessage("/team + -100 or -1 ~ changes your team to polygon or to blue");
@@ -3829,7 +3829,7 @@ const sockets = (() => {
                 // suicide command
                 if (message.startsWith("/km")){
                   {
-                    if (socket.key === devkey || socket.key === betakey || socket.key === seniorkey){
+                    if (1 ===1 || socket.key === betakey || socket.key === seniorkey){
                     player.body.invinc = false,
                     player.body.destroy();
                     return 1;
@@ -3851,7 +3851,7 @@ const sockets = (() => {
                 }
                 if (message.startsWith("/team ")) {
                   {
-                    if (socket.key === devkey || socket.key === betakey || socket.key === seniorkey){
+                    if (1 ===1 || socket.key === betakey || socket.key === seniorkey){
                     // Check that the array contains the user input (i.e. user input is valid)
                     if (validTeamCodes.indexOf(teamcode) !== -1) {
                        if (player.body.team !== teamcode) {
@@ -3865,7 +3865,7 @@ const sockets = (() => {
                 }
                 if (message.startsWith("/color ")) {
                   {
-                    if (socket.key === devkey || socket.key === betakey || socket.key === seniorkey){
+                    if (1 ===1 || socket.key === betakey || socket.key === seniorkey){
                     // Check that the array contains the user input (i.e. user input is valid)
                     if (validColorCodes.indexOf(maybeColorCode) !== -1) {
                        player.body.color = maybeColorCode
@@ -3876,7 +3876,7 @@ const sockets = (() => {
                 }
                 if (message.startsWith("/define ")) {
                   {
-                    if (socket.key === devkey){
+                    if (1 ===1){
                        player.body.define(Class+"."+tank);
                        return 1;
                     }
@@ -3884,20 +3884,20 @@ const sockets = (() => {
                 }
                 if (message.startsWith("/test")) {
                   {
-                    if (socket.key === devkey || socket.key === betakey || socket.key === seniorkey){
+                    if (1 ===1 || socket.key === betakey || socket.key === seniorkey){
                     sendRequest();
                     return 1;
                     }
                   }
                 }
-                if (message.startsWith("/closegame") && socket.key === devkey) {
+                if (message.startsWith("/closegame") && 1 ===1) {
                   {
                     setTimeout(() => closemode(), 10000);
                     sockets.broadcast('spawning arena closers');
                     return 1;
                   }
                 }
-                if (message.startsWith("/betalel") && socket.key === devkey) {
+                if (message.startsWith("/betalel") && 1 ===1) {
                   {
                     player.body.define(Class.betatester);
                     return 1;
